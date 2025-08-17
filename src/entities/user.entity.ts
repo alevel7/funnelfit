@@ -11,6 +11,9 @@ export class User {
   @Column()
   password_hash: string;
 
+  @Column()
+  phoneNumber: string;
+
   @Column({ type: 'enum', enum: ['SME', 'CFO', 'ADMIN', 'REVIEWER', 'ENGAGEMENT_MANAGER'] })
   role: string;
 

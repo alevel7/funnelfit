@@ -8,6 +8,9 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
+  @IsString()
+  phoneNumber: string;
+
   @IsEnum(['SME', 'CFO', 'ADMIN', 'REVIEWER', 'ENGAGEMENT_MANAGER'])
   role: string;
 }

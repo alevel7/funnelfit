@@ -13,8 +13,8 @@ export class CFOProfile {
   @Column({ type: 'text', nullable: true })
   bio: string;
 
-  @Column('text', { array: true, nullable: true })
-  certifications: string[];
+  // @Column('text', { array: true, nullable: true })
+  // certifications: string[];
 
   @Column('text', { array: true, nullable: true })
   expertise_areas: string[];
