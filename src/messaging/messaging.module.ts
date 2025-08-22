@@ -1,23 +1,36 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { MessagingService } from './messaging.service';
+import { EmailMessagesConsumer, MessagingService } from './messaging.service';
 import { BullModule } from '@nestjs/bull';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { ProducerService } from './queue/producer.service';
 
 @Module({
   imports: [
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.example.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'your_email@example.com',
-          pass: 'your_password',
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          service: 'gmail',
+          auth: {
+            user: configService.get('MAIL_USERNAME'),
+            pass: configService.get('MAIL_PASSWORD'),
+          },
         },
-      },
-      defaults: {
-        from: '"No Reply" <no-reply@example.com>',
-      },
+        defaults: {
+          from: '"No Reply" <no-reply@funnelfit.com>',
+        },
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new EjsAdapter(),
+          options: {
+            strict: false,
+          },
+        },
+      }),
+      inject: [ConfigService],
     }),
     BullModule.forRootAsync({
       useFactory: () => ({
@@ -27,11 +40,16 @@ import { BullModule } from '@nestjs/bull';
         },
       }),
     }),
-    BullModule.registerQueue({
+    BullModule.registerQueueAsync({
       name: 'email',
     }),
   ],
   controllers: [],
-  providers: [MessagingService],
+  providers: [
+    MessagingService,
+    ProducerService,
+    EmailMessagesConsumer
+  ],
+  exports: [MessagingService, MailerModule, BullModule],
 })
-export class MessagingModule {}
+export class MessagingModule { }

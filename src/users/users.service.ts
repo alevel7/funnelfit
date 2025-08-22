@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
-import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from 'src/auth/dto/register.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -12,10 +13,19 @@ export class UsersService {
     constructor(
       @InjectRepository(User)
       private readonly userRepo: Repository<User>,
-      private readonly jwtService: JwtService,
     ) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  async create(createUserDto: RegisterDto): Promise<User> {
+    const { email, password, phoneNumber, role } = createUserDto;
+    const password_hash = await bcrypt.hash(password, 10);
+    // Create user entity
+    const user = this.userRepo.create({
+      email,
+      password: password_hash,
+      phoneNumber,
+      role,
+    });
+    return await this.userRepo.save(user);
   }
 
   findAll() {
@@ -27,7 +37,11 @@ export class UsersService {
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return this.userRepo.update(id, updateUserDto)
+  }
+
+  async updateByEmail(email:string, updateUserDto: UpdateUserDto) {
+    return await this.userRepo.update({ email }, updateUserDto);
   }
 
   remove(id: number) {

@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
 export class CreateUserDto {
     @IsEmail()
     email: string;
@@ -9,6 +9,9 @@ export class CreateUserDto {
 
     @IsString()
     phoneNumber: string;
+
+    @IsBoolean()
+    isVerified: boolean;
 
     @IsEnum(['SME', 'CFO', 'ADMIN', 'REVIEWER', 'ENGAGEMENT_MANAGER'])
     role: string;

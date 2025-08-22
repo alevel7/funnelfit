@@ -9,7 +9,7 @@ export class User {
   email: string;
 
   @Column()
-  password_hash: string;
+  password: string;
 
   @Column()
   phoneNumber: string;
@@ -18,11 +18,17 @@ export class User {
   role: string;
 
   @Column({ default: false })
-  is_verified: boolean;
+  isVerified: boolean;
 
   @Column({ type: 'enum', enum: ['ACTIVE', 'INACTIVE', 'PENDING'], default: 'PENDING' })
   status: string;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
+
+  // @BeforeInsert()
+  // @BeforeUpdate()
+  // async validate() {
+  //   await validateOrReject(this);
+  // }
 }

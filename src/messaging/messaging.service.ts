@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
+import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Queue, Job } from 'bull';
 import { MailerService } from '@nestjs-modules/mailer';
 
@@ -11,22 +11,34 @@ export class MessagingService {
   ) {}
 
   async sendEmailAsync(to: string, subject: string, text: string, html?: string): Promise<void> {
-    await this.mailerService.sendMail({
-      to,
-      subject,
-      text,
-      html,
-    });
+    try {
+      const result = await this.mailerService.sendMail({
+        to,
+        subject,
+        text,
+        html,
+      });
+      console.log(`Email sent to ${to}: ${result}`);
+    } catch (error) {
+      console.error(`Error sending email to ${to}: ${error}`);
+    }
   }
 
   // Producer: Add email job to queue
   async queueEmail(to: string, subject: string, text: string, html?: string): Promise<void> {
+    console.log(`Queuing email to ${to}: ${subject}`);
     await this.emailQueue.add('sendEmail', { to, subject, text, html });
   }
 
-  // Consumer: Process email jobs from queue
+
+}
+
+@Processor('email')
+export class EmailMessagesConsumer {
+  constructor(private readonly messagingService: MessagingService) { }
+  @Process('sendEmail')
   async processEmailJob(job: Job<{ to: string; subject: string; text: string; html?: string }>): Promise<void> {
     const { to, subject, text, html } = job.data;
-    await this.sendEmailAsync(to, subject, text, html);
+    await this.messagingService.sendEmailAsync(to, subject, text, html);
   }
 }
