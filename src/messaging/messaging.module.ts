@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { EmailMessagesConsumer, MessagingService } from './messaging.service';
+import { MessagingService } from './messaging.service';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { ProducerService } from './queue/producer.service';
+import { EmailMessagesConsumer } from './queue/consumer.service';
 
 @Module({
   imports: [
@@ -50,6 +51,6 @@ import { ProducerService } from './queue/producer.service';
     ProducerService,
     EmailMessagesConsumer
   ],
-  exports: [MessagingService, MailerModule, BullModule],
+  exports: [MessagingService, ProducerService, MailerModule, BullModule],
 })
 export class MessagingModule { }

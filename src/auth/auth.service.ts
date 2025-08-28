@@ -6,23 +6,26 @@ import { User } from '../entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
-import * as speakeasy from 'speakeasy'
+import { authenticator } from 'otplib';
 import { UsersService } from 'src/users/users.service';
-import { MessagingService } from 'src/messaging/messaging.service';
 import { ApiResponse } from 'src/common/interface/api.interface';
 import { ConfigService } from '@nestjs/config';
 import { ValidateOtpDto } from './dto/validateOtp.dto';
+import { ProducerService } from 'src/messaging/queue/producer.service';
 
 @Injectable()
 export class AuthService {
+  
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
-    private readonly messagingService: MessagingService, // Assuming MessagingService is imported and available
-  ) {}
+    private readonly producerService: ProducerService,
+  ) {
+    authenticator.options = { digits: 6 };
+  }
 
   async register(dto: RegisterDto): Promise<ApiResponse<any>> {
     const { email, password, confirmPassword } = dto;
@@ -38,34 +41,18 @@ export class AuthService {
     const secret = this.configService.getOrThrow('SECRET');
     // const secret = speakeasy.generateSecret({ length: 20 }).base32;
     // Generate 4-digit OTP
-    const otp = speakeasy.totp({
-      digits: 4,
-      step: 500, // OTP valid for 5 minutes
-      secret: secret,
-      encoding: 'base32',
-    });
+    const otp = authenticator.generate(secret);
 
     // Store the secret for later verification (e.g., in DB or cache)
     // For demonstration, we'll just log it
     console.log('OTP Secret (store this for verification):', secret);
 
-    // To verify, use the same step and secret
-    const t = speakeasy.totp.verify({
-      secret: secret,
-      encoding: 'base32',
-      token: otp,
-      step: 500,
-      // window: 10, // Allow a window for clock drift
-    });
-    console.log('OTP verification result:', t);
-
     // Send OTP via email
-    await this.messagingService.queueEmail(
-      email,
-      'Your One-Time Password',
-      `Your OTP is: ${otp}`,
-      `<p>Your OTP is: <strong>${otp}</strong></p>`
-    );
+    await this.producerService.publishEmail({
+      to: email,
+      subject: 'Funnelfit: Your One-Time Password',
+      body: `Your OTP is: ${otp}`,
+    });
 
     return { 
       success: true,
@@ -79,11 +66,7 @@ export class AuthService {
     // Validate the OTP (this is just a placeholder, implement your own logic)
     const secret =this.configService.getOrThrow('SECRET');
 
-    const isValid = speakeasy.totp.verify({
-      secret: secret,
-      encoding: 'base32',
-      token: otp,
-    });
+    const isValid = authenticator.verify({ token: otp, secret });
     // if (!isValid) throw new BadRequestException('Invalid OTP');
     this.userService.updateByEmail(dto.email, { isVerified: true });
     return {
