@@ -7,6 +7,7 @@ import { join } from 'path';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { ProducerService } from './queue/producer.service';
 import { EmailMessagesConsumer } from './queue/consumer.service';
+console.log(__dirname);
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { EmailMessagesConsumer } from './queue/consumer.service';
           from: '"No Reply" <no-reply@funnelfit.com>',
         },
         template: {
-          dir: join(__dirname, 'templates'),
+          dir: join(__dirname, '../../templates'),
           adapter: new EjsAdapter(),
           options: {
             strict: false,

@@ -1,0 +1,13 @@
+export enum AvailabilityType {
+    WEEKDAYS='weekdays',
+    WEEKEND='weekend',
+    FLEXIBLE='flexible'
+}
+
+export enum EngagementModel {
+    CONSULTATION_PER_HOUR="CONSULTATION_PER_HOUR",
+    PROJECT_BASED="PROJECT_BASED",
+    ADVISORY_BOARD_MEMBER="ADVISORY_BOARD_MEMBER",
+    INTERIM_CFO="INTERIM_CFO",
+    FRACTIONAL_CFO="FRACTIONAL_CFO"
+}

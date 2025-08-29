@@ -11,3 +11,9 @@ export class ValidateOtpDto {
     @MinLength(6)
     otp: string;
 }
+
+export class NewOtpDto {
+    @ApiProperty({ example: 'John@gmail.com' })
+    @IsEmail()
+    email: string;
+}

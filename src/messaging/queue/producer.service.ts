@@ -8,10 +8,7 @@ import { ConfigService } from '@nestjs/config';
 export class ProducerService {
   constructor(
     private readonly configService: ConfigService,
-    @InjectQueue(
-      // Use ConfigService to get the queue name
-      (new ConfigService()).get<string>('BULL_EMAIL_QUEUE')
-    )
+    @InjectQueue('email')
     private readonly emailQueue: Queue,
   ) { }
 

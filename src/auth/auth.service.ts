@@ -12,10 +12,12 @@ import { ApiResponse } from 'src/common/interface/api.interface';
 import { ConfigService } from '@nestjs/config';
 import { ValidateOtpDto } from './dto/validateOtp.dto';
 import { ProducerService } from 'src/messaging/queue/producer.service';
+import { SendResponse } from 'src/common/utils/responseHandler';
+import { PasswordResetDto } from './dto/password.dto';
 
 @Injectable()
 export class AuthService {
-  
+
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
@@ -27,7 +29,7 @@ export class AuthService {
     authenticator.options = { digits: 6 };
   }
 
-  async register(dto: RegisterDto): Promise<ApiResponse<any>> {
+  async register(dto: RegisterDto) {
     const { email, password, confirmPassword } = dto;
     const exists = await this.userRepo.findOne({ where: { email: dto.email } });
     if (exists) throw new ConflictException('Email already in use');
@@ -35,8 +37,8 @@ export class AuthService {
     if (password !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
-   
-    const user = await this.userService.create({...dto});
+
+    const user = await this.userService.create({ ...dto });
 
     const secret = this.configService.getOrThrow('SECRET');
     // const secret = speakeasy.generateSecret({ length: 20 }).base32;
@@ -54,43 +56,51 @@ export class AuthService {
       body: `Your OTP is: ${otp}`,
     });
 
-    return { 
-      success: true,
-      message: 'User created successfully. OTP sent to email.',
-      data: user
-    };
-  }
+    return SendResponse.success(user, 'User created successfully. OTP sent to email.');
 
-  async validateOtp(dto: ValidateOtpDto): Promise<ApiResponse<any>> {
+  };
+
+  async validateOtp(dto: ValidateOtpDto) {
     const { otp } = dto;
     // Validate the OTP (this is just a placeholder, implement your own logic)
-    const secret =this.configService.getOrThrow('SECRET');
+    const secret = this.configService.getOrThrow('SECRET');
 
     const isValid = authenticator.verify({ token: otp, secret });
     // if (!isValid) throw new BadRequestException('Invalid OTP');
     this.userService.updateByEmail(dto.email, { isVerified: true });
-    return {
-      success: true,
-      message: 'OTP validated successfully',
-      data: null,
-    };
+    return SendResponse.success(null, 'OTP validated successfully');
+  }
+  async getNewOtp(email: string) {
+    const user = await this.userService.findUserByEmail(email);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+    const secret = this.configService.getOrThrow('SECRET');
+    const otp = authenticator.generate(secret);
+    await this.producerService.publishEmail({
+      to: email,
+      subject: 'Funnelfit: Your One-Time Password',
+      body: `Your OTP is: ${otp}`,
+    });
+    return SendResponse.success(null, 'New OTP sent to email');
   }
 
-  async login(dto: LoginDto): Promise<ApiResponse<{ user: User; token: string }>> {
-    const user = await this.userRepo.findOne({ where: { email: dto.email, role: dto.role } });
+  async login(dto: LoginDto) {
+    const user = await this.userService.findUserByEmail(dto.email);
     if (!user) throw new UnauthorizedException('Invalid credentials');
     if (!user.isVerified) throw new UnauthorizedException('User not verified. Please validate your OTP.');
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
     const payload = { sub: user.id, role: user.role };
     const token = await this.jwtService.signAsync(payload);
-    return {
-      success: true,
-      message: 'Login successful',
-      data: {
-        user,
-        token
-      },
-    };
+    return SendResponse.success({ user, token }, 'Login successful');
   }
+
+  async resetPassword(dto: PasswordResetDto) {
+    const { email, password, confirmPassword } = dto;
+    const user = await this.userService.verifyUserExists(email);
+    user.password = await bcrypt.hash(password, 10);
+    await this.userRepo.save(user);
+    return SendResponse.success(null, 'Password reset successfully');
+  }
+
+  
 }

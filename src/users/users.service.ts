@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,6 +26,16 @@ export class UsersService {
       role,
     });
     return await this.userRepo.save(user);
+  }
+
+  async verifyUserExists(email: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) throw new NotFoundException('Account not found');
+    return user;
+  }
+  async findUserByEmail(email: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    return user;
   }
 
   findAll() {

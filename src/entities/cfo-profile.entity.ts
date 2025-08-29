@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
+import { AvailabilityType, EngagementModel } from 'src/common/enums/user.enum';
 
 @Entity('cfo_profiles')
 export class CFOProfile {
@@ -25,51 +26,41 @@ export class CFOProfile {
   @Column({ type: 'varchar', length: 255, nullable: true })
   linkedInUrl: string;
 
+  @Column('simple-json', { array: true, nullable: true })
+  certifications: {certCode:string, name:string, url:string}[];
+
+  @Column('simple-json', { array: true, nullable: true })
+  education: { degree: string; institution: string; year: number }[];
+
+  @Column('simple-json', { array: true, nullable: true })
+  expertiseAreas: { code: string, name: string }[];
+
+  @Column('simple-json', { array: true, nullable: true })
+  industries: { code: string, name: string }[];
+
+  @Column({type: 'simple-json', nullable: true })
+  companySize: { min: number; max: number };
+
+  @Column({ type: 'simple-json', nullable: true })
+  yearsOfExperience: { min: number; max: number };
+
+  @Column({ type: 'int', nullable: true })
+  rateExpectation: number;
+
+  @Column({ type: 'enum', enum: AvailabilityType, nullable: true })
+  availabilityType: AvailabilityType;
 
   @Column({ type: 'text', nullable: true })
-  pastProject: string;
+  additionalPreference: string;
 
-  @Column('text', { array: true, nullable: true })
-  certifications: string[];
-
-  @Column('text', { array: true, nullable: true })
-  otherCertifications: string[];
-
-  @Column('text', { array: true, nullable: true })
-  expertise_areas: string[];
-
-  @Column('text', { array: true, nullable: true })
-  industries: string[];
-
-  @Column('text', { array: true, nullable: true })
-  software_skills: string[];
-
-  @Column({ type: 'int', nullable: true })
-  years_experience: number;
-
-  @Column({ type: 'int', nullable: true })
-  hourlyRate: number;
-
-  @Column({ type: 'enum', enum: ['LESS_THAN_8', '8_TO_15', '15_TO_24'], nullable: true })
-  availabilityHoursRange: string;
-
-  @Column({ type: 'enum', enum: ['LESS_THAN_8', '8_TO_15', '15_TO_24'], nullable: true })
-  workingHours: string;
-
-  @Column('text', { array: true, nullable: true })
-  engagement_type: string[];
+  @Column('simple-json', { nullable: true })
+  engagementLength: { min: number; max: number, type: 'MONTHS' | 'YEARS' | 'OPEN_ENDED' | 'FLEXIBLE' };
 
   @Column({ type: 'enum', enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' })
   status: string;
 
-  @Column('text', { array: true, nullable: true })
-  preferredPricingModel: (
-    | 'PER_HOUR'
-    | 'PROJECT_BASED'
-    | 'RETAINER_BASED'
-    | 'MONTHLY_FIXED_FEE'
-    | 'PERFORMANCE_BASED'
-  )[];
+  @Column({ type: 'enum', enum: EngagementModel, nullable: true })
+  preferredEngagementModel: EngagementModel;
 
   @Column({ type: 'text', nullable: true })
   workExpectationsAddedNote: string;

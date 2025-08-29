@@ -4,7 +4,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from 'src/entities/user.entity';
-import { ValidateOtpDto } from './dto/validateOtp.dto';
+import { NewOtpDto, ValidateOtpDto } from './dto/validateOtp.dto';
+import { PasswordResetDto } from './dto/password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,9 +18,24 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  @Post('validate-otp')
+  @Post('otp/validate')
   async validateOtp(@Body() dto: ValidateOtpDto) {
     return this.authService.validateOtp(dto);
+  }
+
+  @Post('otp/new')
+  async getNewOtp(@Body() dto: NewOtpDto) {
+    return this.authService.getNewOtp(dto.email);
+  }
+
+  @Post("forgot-password")
+  async getPasswordResetOtp(@Body() dto: NewOtpDto) {
+    return this.authService.getNewOtp(dto.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: PasswordResetDto) {
+    return this.authService.resetPassword(dto);
   }
 
   @HttpCode(HttpStatus.OK)
