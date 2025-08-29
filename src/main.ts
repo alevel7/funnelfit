@@ -12,6 +12,8 @@ async function bootstrap() {
     transform: true,
   }));
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('Median')
     .setDescription('The Median API description')
