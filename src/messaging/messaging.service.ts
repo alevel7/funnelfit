@@ -23,7 +23,8 @@ export class MessagingService {
           toName: emailDto.toName,
         },
       });
-      console.log(`Email sent to ${emailDto.to}: ${result}`);
+      console.log(`Email sent to ${emailDto.to}`);
+      console.log(result)
     } catch (error) {
       console.error(`Error sending email to ${emailDto.to}: ${error}`);
     }

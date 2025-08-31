@@ -45,17 +45,13 @@ export class AuthService {
     // Generate 4-digit OTP
     const otp = authenticator.generate(secret);
 
-    // Store the secret for later verification (e.g., in DB or cache)
-    // For demonstration, we'll just log it
-    console.log('OTP Secret (store this for verification):', secret);
-
     // Send OTP via email
     await this.producerService.publishEmail({
       to: email,
       subject: 'Funnelfit: Your One-Time Password',
       body: `Your OTP is: ${otp}`,
     });
-
+    console.log(user)
     return SendResponse.success(user, 'User created successfully. OTP sent to email.');
 
   };
@@ -67,8 +63,12 @@ export class AuthService {
 
     const isValid = authenticator.verify({ token: otp, secret });
     // if (!isValid) throw new BadRequestException('Invalid OTP');
-    this.userService.updateByEmail(dto.email, { isVerified: true });
-    return SendResponse.success(null, 'OTP validated successfully');
+    this.userService.updateVerificationStatus(dto.email, { isVerified: true });
+    const user = await this.userService.findUserByEmail(dto.email);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const token = await this.jwtService.signAsync(payload);
+    return SendResponse.success({ token }, 'OTP validated successfully');
   }
   async getNewOtp(email: string) {
     const user = await this.userService.findUserByEmail(email);
@@ -89,7 +89,7 @@ export class AuthService {
     if (!user.isVerified) throw new UnauthorizedException('User not verified. Please validate your OTP.');
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
-    const payload = { sub: user.id, role: user.role };
+    const payload = { id: user.id, email:user.email, role: user.role };
     const token = await this.jwtService.signAsync(payload);
     return SendResponse.success({ user, token }, 'Login successful');
   }

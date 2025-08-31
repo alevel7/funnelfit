@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
@@ -9,6 +10,7 @@ export class User {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column()
@@ -29,9 +31,4 @@ export class User {
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;  
 
-  // @BeforeInsert()
-  // @BeforeUpdate()
-  // async validate() {
-  //   await validateOrReject(this);
-  // }
 }

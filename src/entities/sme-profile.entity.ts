@@ -13,10 +13,10 @@ export class SMEProfile {
   @JoinColumn()
   user: User;
 
-  @Column()
+  @Column({ nullable: true })
   companyName: string;
 
-  @Column({type:'simple-json'})
+  @Column({ type: 'simple-json', nullable: true, default: {} })
   companyinfo: {
       companyName: string;
       address: string;
@@ -30,7 +30,7 @@ export class SMEProfile {
       yearsInBusiness: { min: number, max: number, code: string }
   };
 
-  @Column({ type: 'simple-json' })
+  @Column({ type: 'simple-json', nullable: true, default: {} })
   contactPerson: {
     firstName: string;
     lastName:string;
@@ -39,21 +39,21 @@ export class SMEProfile {
     phone?: string;
   };
 
-  @Column({ type: 'simple-json', array: true, nullable: true })
+  @Column({ type: 'simple-json', array: true, nullable: true, default: [] })
   financialGoal: { code: string, name: string }[];
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   additionalChallenges:string;
 
-  @Column({ type: 'simple-json', array: true, nullable: true })
-  areaOfNeed: { code: string, name: string }[];;
+  @Column({ type: 'simple-json', array: true, nullable: true, default: [] })
+  areaOfNeed: { code: string, name: string }[];
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, default: null })
   addtionalRequirement: string;
 
-  @Column({ type: 'enum', enum: EngagementModel, nullable: true })
+  @Column({ type: 'enum', enum: EngagementModel, nullable: true, default: null })
   preferredEngagementModel: EngagementModel;
 
-  @Column('text', { array: true, nullable: true })
+  @Column('text', { array: true, nullable: true, default: [] })
   communicationPreferences: communicationOptions[];
 }

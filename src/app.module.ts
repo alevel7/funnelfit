@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { OnboardingModule } from './onboarding/onboarding.module';
 import { NdaModule } from './nda/nda.module';
 import { ProfileModule } from './profile/profile.module';
 import { MatchingModule } from './matching/matching.module';
@@ -20,6 +19,8 @@ import { NotificationModule } from './notification/notification.module';
 import { dataSourceOptions } from 'db/data-source';
 import { UsersModule } from './users/users.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { SmeModule } from './sme/sme.module';
+import { AuthStrategy } from './common/guards/auth.strategy';
 
 @Module({
   imports: [
@@ -31,7 +32,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
      }),
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
-    OnboardingModule,
     NdaModule,
     ProfileModule,
     MatchingModule,
@@ -46,8 +46,9 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     NotificationModule,
     UsersModule,
     CloudinaryModule,
+    SmeModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthStrategy],
 })
 export class AppModule {}

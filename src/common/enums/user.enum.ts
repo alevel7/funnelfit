@@ -11,3 +11,9 @@ export enum EngagementModel {
     INTERIM_CFO="INTERIM_CFO",
     FRACTIONAL_CFO="FRACTIONAL_CFO"
 }
+
+export enum UserRole {
+    SME = 'SME',
+    CFO = 'CFO',
+    ADMIN = 'ADMIN'
+}

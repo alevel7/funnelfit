@@ -13,7 +13,6 @@ export class ProducerService {
   ) { }
 
   async publishEmail(request: EmailDto) {
-    console.log('sending email....', request);
     await this.emailQueue.add('email-job', request);
   }
 }

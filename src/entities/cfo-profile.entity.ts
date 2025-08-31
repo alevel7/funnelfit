@@ -26,16 +26,17 @@ export class CFOProfile {
   @Column({ type: 'varchar', length: 255, nullable: true })
   linkedInUrl: string;
 
-  @Column('simple-json', { array: true, nullable: true })
-  certifications: {certCode:string, name:string, url:string}[];
+  // For an array of objects, use 'simple-json' (not array:true)
+  @Column('simple-json', { nullable: true })
+  certifications: { certCode: string; name: string; url: string }[];
 
-  @Column('simple-json', { array: true, nullable: true })
+  @Column('simple-json', { nullable: true })
   education: { degree: string; institution: string; year: number }[];
 
-  @Column('simple-json', { array: true, nullable: true })
+  @Column('simple-json', { nullable: true })
   expertiseAreas: { code: string, name: string }[];
 
-  @Column('simple-json', { array: true, nullable: true })
+  @Column('simple-json', { nullable: true })
   industries: { code: string, name: string }[];
 
   @Column({type: 'simple-json', nullable: true })

@@ -23,9 +23,7 @@ export class EmailMessagesConsumer {
 
   @Process('email-job')
   async handleTranscode(job: Job) {
-    console.log('Email consumer consumed request...', job);
     const email = job.data as EmailDto;
     await this.messagingService.sendEmailAsync(email);
-    console.log('completed!!');
   }
 }
