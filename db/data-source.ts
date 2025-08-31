@@ -6,6 +6,8 @@ import { DataSource, DataSourceOptions } from "typeorm";
 config({ path: `.env.${process.env.NODE_ENV}` });
 const configService = new ConfigService();
 
+console.log(process.env.NODE_ENV);
+
 export const dataSourceOptions: DataSourceOptions = {
     type: 'postgres',
     host: configService.getOrThrow<string>('DB_HOST'),
