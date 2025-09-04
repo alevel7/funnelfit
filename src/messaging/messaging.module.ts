@@ -35,12 +35,14 @@ console.log(__dirname);
       inject: [ConfigService],
     }),
     BullModule.forRootAsync({
-      useFactory: () => ({
+      imports: [ConfigModule],
+      useFactory: (configservice: ConfigService) => ({
         redis: {
-          host: 'localhost',
-          port: 6379,
+          host: configservice.get('REDIS_HOST'),
+          port: configservice.get('REDIS_PORT'),
         },
       }),
+      inject: [ConfigService],
     }),
     BullModule.registerQueueAsync({
       name: 'email',

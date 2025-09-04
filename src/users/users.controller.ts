@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import {  UpdateCFODto } from './dto/update-user.dto';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { CfoGuard } from 'src/common/guards/cfo.guard';
 
 @Controller('users')
 export class UsersController {
@@ -19,14 +20,15 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @UseGuards(CfoGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
+  @UseGuards(CfoGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateCFODto) {
-    console.log('a',updateUserDto);
     return this.usersService.update(id, updateUserDto);
   }
 

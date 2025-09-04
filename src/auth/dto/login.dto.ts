@@ -12,7 +12,7 @@ export class LoginDto {
   @MinLength(6)
   password: string;
 
-  @ApiProperty({ example: 'SME | CFO | ADMIN' })
-  @IsEnum(UserRole)
-  role: UserRole;
+  // @ApiProperty({ example: 'SME | CFO | ADMIN' })
+  // @IsEnum(UserRole)
+  // role: UserRole;
 }

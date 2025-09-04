@@ -24,7 +24,7 @@ export class SMEProfile {
       state: string;
       postalCode: string;
       country: string;
-      industry: string;
+      industry: { code: string, name: string };
       revenue: {min:number, max:number, code:string}
       employees: { min: number, max: number, code: string }
       yearsInBusiness: { min: number, max: number, code: string }
@@ -39,13 +39,13 @@ export class SMEProfile {
     phone?: string;
   };
 
-  @Column({ type: 'simple-json', array: true, nullable: true, default: [] })
+  @Column({ type: 'simple-json', nullable: true, default: [] })
   financialGoal: { code: string, name: string }[];
 
   @Column({ type: 'text', nullable: true })
   additionalChallenges:string;
 
-  @Column({ type: 'simple-json', array: true, nullable: true, default: [] })
+  @Column({ type: 'simple-json', nullable: true, default: [] })
   areaOfNeed: { code: string, name: string }[];
 
   @Column({ type: 'text', nullable: true, default: null })
@@ -54,6 +54,6 @@ export class SMEProfile {
   @Column({ type: 'enum', enum: EngagementModel, nullable: true, default: null })
   preferredEngagementModel: EngagementModel;
 
-  @Column('text', { array: true, nullable: true, default: [] })
+  @Column('simple-array', { nullable: true, default: [] })
   communicationPreferences: communicationOptions[];
 }

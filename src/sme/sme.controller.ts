@@ -11,7 +11,10 @@ export class SmeController {
 
     @Patch('profile')
     @UseGuards(SMEGuard)
-    updateProfile(@Request() LoggedInUser: LoggedInUser, @Body() body: UpdateCompanyDto) {
-        return this.smeService.updateProfile(LoggedInUser.id, body);
+    updateProfile(@Request() req: any, @Body() body: UpdateCompanyDto) {
+        const user: LoggedInUser = req.user
+        console.log(body);
+        
+        return this.smeService.updateProfile(user.id, body);
     }
 }

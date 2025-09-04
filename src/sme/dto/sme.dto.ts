@@ -1,28 +1,91 @@
 import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsEmail, IsEnum, IsNumber, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
 import { EngagementModel } from "src/common/enums/user.enum";
+
+class RangeDto {
+    @IsOptional()
+    @IsNumber()
+    min: number;
+
+    @IsOptional()
+    @IsNumber()
+    max: number;
+
+    @IsOptional()
+    @IsString()
+    code: string;
+
+}
 
 
 export class CompanyProfileDto {
+    @IsOptional()
+    @IsString()
     companyName: string;
+
+    @IsOptional()
+    @IsString()
     address: string;
+
+    @IsOptional()
+    @IsString()
     city: string;
+
+    @IsOptional()
+    @IsString()
     state: string;
+
+    @IsOptional()
+    @IsString()
     postalCode: string;
+
+    @IsOptional()
+    @IsString()
     country: string;
-    industry: string;
-    revenue: { min: number, max: number, code: string }
-    employees: { min: number, max: number, code: string }
-    yearsInBusiness: { min: number, max: number, code: string }
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => RangeDto)
+    industry: RangeDto;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => RangeDto)
+    revenue: RangeDto;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => RangeDto)
+    employees: RangeDto;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => RangeDto)
+    yearsInBusiness: RangeDto;
 }
 
 export class CompanyContactDto {
+    @IsOptional()
+    @IsString()
     firstName: string;
+
+    @IsOptional()
+    @IsString()
     lastName: string;
+
+    @IsOptional()
+    @IsString()
     jobTitle: string;
+
+    @IsOptional()
+    @IsEmail()
     email?: string;
+
+    @IsOptional()
+    @IsPhoneNumber('NG')
     phone?: string;
 }
+
 
 class FinancialGoalDto {
     @IsString()
@@ -41,10 +104,6 @@ class AreaOfNeed {
 }
 
 export class UpdateCompanyDto {
-
-    @IsOptional()
-    @IsString()
-    companyName?: string;
 
     @IsOptional()
     @ValidateNested()
