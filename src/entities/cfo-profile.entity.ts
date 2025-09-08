@@ -17,8 +17,8 @@ export class CFOProfile {
   @Column({ type: 'varchar', length: 100, nullable: true })
   lastName: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phone: string;
+  // @Column({ type: 'varchar', length: 20, nullable: true })
+  // phone: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   resumeUrl: string;
@@ -30,8 +30,8 @@ export class CFOProfile {
   @Column('simple-json', { nullable: true })
   certifications: { certCode: string; name: string; url: string }[];
 
-  @Column('simple-json', { nullable: true })
-  education: { degree: string; institution: string; year: number }[];
+  @Column({ type: 'text', nullable: true })
+  education: string;
 
   @Column('simple-json', { nullable: true })
   expertiseAreas: { code: string, name: string }[];
@@ -40,13 +40,13 @@ export class CFOProfile {
   industries: { code: string, name: string }[];
 
   @Column({type: 'simple-json', nullable: true })
-  companySize: { min: number; max: number };
+  companySize: { min: number; max: number, code:string };
 
   @Column({ type: 'simple-json', nullable: true })
-  yearsOfExperience: { min: number; max: number };
+  yearsOfExperience: { min: number; max: number, code: string };
 
-  @Column({ type: 'int', nullable: true })
-  rateExpectation: number;
+  @Column({ type: 'text', nullable: true })
+  rateExpectation: string;
 
   @Column({ type: 'enum', enum: AvailabilityType, nullable: true })
   availabilityType: AvailabilityType;
@@ -54,8 +54,8 @@ export class CFOProfile {
   @Column({ type: 'text', nullable: true })
   additionalPreference: string;
 
-  @Column('simple-json', { nullable: true })
-  engagementLength: { min: number; max: number, type: 'MONTHS' | 'YEARS' | 'OPEN_ENDED' | 'FLEXIBLE' };
+  @Column({ type: 'text', nullable: true })
+  engagementLength: string;
 
   @Column({ type: 'enum', enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' })
   status: string;
@@ -63,6 +63,6 @@ export class CFOProfile {
   @Column({ type: 'enum', enum: EngagementModel, nullable: true })
   preferredEngagementModel: EngagementModel;
 
-  @Column({ type: 'text', nullable: true })
-  workExpectationsAddedNote: string;
+  // @Column({ type: 'text', nullable: true })
+  // workExpectationsAddedNote: string;
 }

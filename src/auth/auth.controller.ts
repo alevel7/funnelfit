@@ -22,6 +22,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
     // Handle Google OAuth2 callback
+    console.log('user', req.user);
     return req.user;
   }
 
@@ -48,6 +49,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @UseGuards(AuthGuard('jwt'))
   async resetPassword(@Body() dto: PasswordResetDto) {
     return this.authService.resetPassword(dto);
   }

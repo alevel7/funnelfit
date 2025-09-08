@@ -14,6 +14,10 @@ export class CompanySizeDto {
     @Optional()
     @IsNumber()
     max?: number;
+
+    @Optional()
+    @IsString()
+    code?: string;
 }
 
 export class UpdateCFODto  {
@@ -39,13 +43,13 @@ export class UpdateCFODto  {
     @IsUrl()
     resumeUrl?: string;
 
-    @Optional()
+    @IsOptional()
     @IsArray()
     certifications?: { certCode: string; name:string, url: string }[];
 
-    @Optional()
-    @IsArray()
-    education?: { degree: string; institution: string; year: number }[];
+    @IsOptional()
+    @IsString()
+    education?: string;
 
     @IsOptional()
     @IsArray()
@@ -56,7 +60,9 @@ export class UpdateCFODto  {
     expertiseAreas?: { code: string, name: string }[];
 
     @IsOptional()
-    yearsOfExperience?: { min: number; max: number };
+    @ValidateNested()
+    @Type(() => CompanySizeDto)
+    yearsOfExperience?: CompanySizeDto;
 
     @IsOptional()
     @ValidateNested()
@@ -64,8 +70,8 @@ export class UpdateCFODto  {
     companySize?: CompanySizeDto;
 
     @IsOptional()
-    @IsNumber()
-    rateExpectation?: number;
+    @IsString()
+    rateExpectation?: string;
 
     @IsOptional()
     @IsEnum(AvailabilityType)
@@ -76,15 +82,23 @@ export class UpdateCFODto  {
     additionalPreference?: string;//
 
     @IsOptional()
-    engagementLength?: { min: number; max: number, type: 'MONTHS' | 'YEARS' | 'OPEN_ENDED' | 'FLEXIBLE' };//
+    @IsEnum([
+      '3-6_months',
+      '6-12_months',
+      '1-2_years',
+      '2+_years',
+      'ongoing',
+      'project_based'
+    ])
+    engagementLength?:string;
 
     @IsOptional()
     @IsEnum(EngagementModel)
     preferredEngagementModel?: EngagementModel;//
 
-    @IsOptional()
-    @IsString()
-    workExpectationsAddedNote?: string;//
+    // @IsOptional()
+    // @IsString()
+    // workExpectationsAddedNote?: string;//
 }
 
 

@@ -49,20 +49,27 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateCFODto) {
-    console.log(updateUserDto);
     
     // check if user with the id argument exists
-    const user = await this.cfoRepo.findOne({ where: { user: { id } } });
+    const user = await this.cfoRepo.findOne({ where: { user: { id } }, relations: ['user'] });
     if (user) {
+      // mark user as onboarded if all profile fields are filled
+      const isOnboarded = await this.isCfoOnboarded(user)
+      // if isOnboarded is true, update the isOnboarded field in the users table
+      if (isOnboarded) {
+        await this.userRepo.update({ id }, { isOnboarded: true });
+      }
       // User exists, proceed with the update
       const updatedUser = Object.assign(user, updateUserDto);
       await this.cfoRepo.save(updatedUser);
-      return this.findOne(id);
+      const response = await this.findUserById(id)
+      return SendResponse.success(response, 'CFO Profile updated successfully');
     } else {
       // User does not exist, insert new record into the database
       const newUser = this.cfoRepo.create({ user: { id }, ...updateUserDto });
       await this.cfoRepo.save(newUser);
-      return this.findOne(id);
+      const response = await this.findUserById(id);
+      return SendResponse.success(response, 'CFO Profile updated successfully');
     }
   }
 
@@ -74,18 +81,28 @@ export class UsersService {
     return `This action removes a #${id} user`;
   }
   // helper methods
+  async isCfoOnboarded(cfo: CFOProfile): Promise<boolean> {
+    // return await this.userRepo.update({ id }, { isOnboarded: true });
+    if (cfo.firstName && cfo.lastName && cfo.certifications && cfo.education 
+      && cfo.expertiseAreas && cfo.industries 
+      && cfo.companySize && cfo.yearsOfExperience && cfo.rateExpectation && cfo.availabilityType
+      && cfo.engagementLength && cfo.preferredEngagementModel) {
+        return true;
+      }
+      return false;
+  }
   async verifyUserExists(email: string) {
     const user = await this.userRepo.findOne({ where: { email } });
     if (!user) throw new NotFoundException('Account not found');
     return user;
   }
   async findUserByEmail(email: string) {
-    const user = await this.userRepo.findOne({ where: { email } });
+    const user = await this.userRepo.findOne({ where: { email }, relations: ['cfo'] });
     return user;
   }
 
   async findUserById(id:string) {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ where: { id }, relations: ['cfo'] });
     return user;
   }
 }
