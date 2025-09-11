@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Patch, UseGuards, Request, Get } from '@nestjs/common';
 import { SMEGuard } from 'src/common/guards/sme.guard';
 import { SmeService } from './sme.service';
 import { LoggedInUser } from '../common/interface/jwt.interface';
@@ -16,5 +16,12 @@ export class SmeController {
         console.log(body);
         
         return this.smeService.updateProfile(user.id, body);
+    }
+
+    @Get('profile')
+    @UseGuards(SMEGuard)
+    getProfile(@Request() req: any) {
+        const user: LoggedInUser = req.user
+        return this.smeService.findSMEById(user.id);
     }
 }

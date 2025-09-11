@@ -96,8 +96,11 @@ export class UsersService {
     if (!user) throw new NotFoundException('Account not found');
     return user;
   }
-  async findUserByEmail(email: string) {
-    const user = await this.userRepo.findOne({ where: { email }, relations: ['cfo'] });
+  async findUserByEmail(email: string, role: 'sme' | 'cfo' | null = null) {
+    const user = await this.userRepo.findOne({
+       where: { email }, 
+       relations: [role ? role : ''] 
+      });
     return user;
   }
 

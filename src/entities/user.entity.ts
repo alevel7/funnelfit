@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
 import { CFOProfile } from './cfo-profile.entity';
+import { SMEProfile } from './sme-profile.entity';
 
 @Entity('users')
 export class User {
@@ -32,6 +33,9 @@ export class User {
    // these two fields were added for reverse fetching of data and are not part of column in db
   @OneToOne(() => CFOProfile, (cfoProfile) => cfoProfile.user)
   cfo: CFOProfile;
+
+  @OneToOne(() => SMEProfile, (smeProfile) => smeProfile.user)
+  sme: SMEProfile;
 
   @CreateDateColumn()
   createdAt: Date;

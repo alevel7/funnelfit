@@ -14,6 +14,7 @@ import { ValidateOtpDto } from './dto/validateOtp.dto';
 import { ProducerService } from 'src/messaging/queue/producer.service';
 import { SendResponse } from 'src/common/utils/responseHandler';
 import { PasswordResetDto } from './dto/password.dto';
+import { UserRole } from 'src/common/enums/user.enum';
 
 @Injectable()
 export class AuthService {
@@ -84,7 +85,12 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.userService.findUserByEmail(dto.email);
+    let user = await this.userService.verifyUserExists(dto.email);
+    if (user.role === UserRole.CFO) {
+      user = await this.userService.findUserByEmail(dto.email, 'cfo') as User;
+    } else {
+      user = await this.userService.findUserByEmail(dto.email, 'sme') as User;
+    }
     if (!user) throw new UnauthorizedException('Invalid credentials');
     if (!user.isVerified) throw new UnauthorizedException('User not verified. Please validate your OTP.');
     const valid = await bcrypt.compare(dto.password, user.password);

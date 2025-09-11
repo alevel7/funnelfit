@@ -16,7 +16,16 @@ class RangeDto {
     code: string;
 
 }
+class Industry {
+    @IsOptional()
+    @IsString()
+    name: string;
 
+    @IsOptional()
+    @IsString()
+    code: string;
+
+}
 
 export class CompanyProfileDto {
     @IsOptional()
@@ -45,8 +54,8 @@ export class CompanyProfileDto {
 
     @IsOptional()
     @ValidateNested()
-    @Type(() => RangeDto)
-    industry: RangeDto;
+    @Type(() => Industry)
+    industry: Industry;
 
     @IsOptional()
     @ValidateNested()
