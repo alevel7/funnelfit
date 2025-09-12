@@ -142,7 +142,12 @@ export class UpdateCompanyDto {
 
     @IsOptional()
     @IsString()
-    addtionalRequirement?: string;
+    additionalRequirement?: string;
+
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => RangeDto)
+    engagementDuration: RangeDto;
 
     @IsOptional()
     @IsEnum(EngagementModel)

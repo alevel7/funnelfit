@@ -13,9 +13,6 @@ export class SMEProfile {
   @JoinColumn()
   user: User;
 
-  @Column({ nullable: true })
-  companyName: string;
-
   @Column({ type: 'simple-json', nullable: true, default: {} })
   companyinfo: {
       companyName: string;
@@ -28,6 +25,13 @@ export class SMEProfile {
       revenue: {min:number, max:number, code:string}
       employees: { min: number, max: number, code: string }
       yearsInBusiness: { min: number, max: number, code: string }
+  };
+
+  @Column({type:'simple-json', nullable:true, default:{}}) // e.g. 6 months, 1 year, 2 years
+  engagementDuration: {
+    min: number;
+    max: number;
+    code: string;
   };
 
   @Column({ type: 'simple-json', nullable: true, default: {} })
@@ -49,10 +53,7 @@ export class SMEProfile {
   areaOfNeed: { code: string, name: string }[];
 
   @Column({ type: 'text', nullable: true, default: null })
-  addtionalRequirement: string;
-
-  @Column({ type: 'enum', enum: EngagementModel, nullable: true, default: null })
-  preferredEngagementModel: EngagementModel;
+  additionalRequirement: string;
 
   @Column('simple-array', { nullable: true, default: [] })
   communicationPreferences: communicationOptions[];
