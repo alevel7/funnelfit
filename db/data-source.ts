@@ -23,6 +23,9 @@ export const dataSourceOptions: DataSourceOptions = {
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
     migrations: ['dist/db/migrations/*.js'],
     subscribers: [],
+    ssl: {
+        rejectUnauthorized: false // For development only
+    },
 }
 const dataSource = new DataSource(dataSourceOptions);
 export default dataSource;
