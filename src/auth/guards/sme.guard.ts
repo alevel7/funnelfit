@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { AuthenticationGuard } from './auth.guard';
-import { UserRole } from '../enums/user.enum';
+import { UserRole } from 'src/common/enums/user.enum';
 
 @Injectable()
 export class SMEGuard extends AuthenticationGuard implements CanActivate {

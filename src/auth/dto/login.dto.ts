@@ -16,3 +16,9 @@ export class LoginDto {
   // @IsEnum(UserRole)
   // role: UserRole;
 }
+
+
+export enum LoginType  {
+  STANDARD = 'STANDARD',
+  GOOGLE = 'GOOGLE',
+}

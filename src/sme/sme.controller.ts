@@ -1,8 +1,8 @@
 import { Body, Controller, Patch, UseGuards, Request, Get } from '@nestjs/common';
-import { SMEGuard } from 'src/common/guards/sme.guard';
 import { SmeService } from './sme.service';
 import { LoggedInUser } from '../common/interface/jwt.interface';
 import { UpdateCompanyDto } from './dto/sme.dto';
+import { SMEGuard } from 'src/auth/guards/sme.guard';
 
 @Controller('sme')
 export class SmeController {

@@ -20,7 +20,6 @@ import { dataSourceOptions } from 'db/data-source';
 import { UsersModule } from './users/users.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SmeModule } from './sme/sme.module';
-import { AuthStrategy } from './common/guards/auth.strategy';
 
 @Module({
   imports: [
@@ -49,6 +48,6 @@ import { AuthStrategy } from './common/guards/auth.strategy';
     SmeModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AuthStrategy],
+  providers: [AppService],
 })
 export class AppModule {}

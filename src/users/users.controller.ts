@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import {  UpdateCFODto } from './dto/update-user.dto';
 import { RegisterDto } from 'src/auth/dto/register.dto';
-import { CfoGuard } from 'src/common/guards/cfo.guard';
+import { CfoGuard } from 'src/auth/guards/cfo.guard';
 
 @Controller('users')
 export class UsersController {

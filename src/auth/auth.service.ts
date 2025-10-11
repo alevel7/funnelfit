@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto, LoginType } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { authenticator } from 'otplib';
 import { UsersService } from 'src/users/users.service';
@@ -15,6 +15,7 @@ import { ProducerService } from 'src/messaging/queue/producer.service';
 import { SendResponse } from 'src/common/utils/responseHandler';
 import { PasswordResetDto } from './dto/password.dto';
 import { UserRole } from 'src/common/enums/user.enum';
+import { GoogleLoginMetaData } from 'src/common/interface/google.interface';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
     authenticator.options = { digits: 6 };
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<any> {
     const { email, password, confirmPassword } = dto;
     const exists = await this.userRepo.findOne({ where: { email: dto.email } });
     if (exists) throw new ConflictException('Email already in use');
@@ -95,7 +96,7 @@ export class AuthService {
     if (!user.isVerified) throw new UnauthorizedException('User not verified. Please validate your OTP.');
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
-    const payload = { id: user.id, email:user.email, role: user.role };
+    const payload = { id: user.id, email: user.email, role: user.role };
     const token = await this.jwtService.signAsync(payload);
     return SendResponse.success({ user, token }, 'Login successful');
   }
@@ -108,5 +109,21 @@ export class AuthService {
     return SendResponse.success(null, 'Password reset successfully');
   }
 
-  
+  async validateOAuthLogin(email: string, role: UserRole): Promise<User> {
+    const existingUser = await this.userRepo.findOne({ where: { email: email } });
+    if (existingUser) {
+      return existingUser;
+    }
+    const pwd = ''
+    const user = await this.userService.create({ email, role, password: pwd, confirmPassword: pwd, phoneNumber: '' });
+    const secret = this.configService.getOrThrow('SECRET');
+    const otp = authenticator.generate(secret);
+    await this.producerService.publishEmail({
+      to: email,
+      subject: 'Funnelfit: Your One-Time Password',
+      body: `Your OTP is: ${otp}`,
+    });
+    return user
+  }
+
 }
