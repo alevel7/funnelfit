@@ -64,7 +64,7 @@ export class AuthService {
     const secret = this.configService.getOrThrow('SECRET');
 
     const isValid = authenticator.verify({ token: otp, secret });
-    // if (!isValid) throw new BadRequestException('Invalid OTP');
+    if (!isValid) throw new BadRequestException('Invalid OTP');
     this.userService.updateVerificationStatus(dto.email, { isVerified: true });
     const user = await this.userService.findUserByEmail(dto.email);
     if (!user) throw new UnauthorizedException('Invalid credentials');

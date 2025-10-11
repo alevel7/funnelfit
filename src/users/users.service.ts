@@ -12,12 +12,12 @@ import { CFOProfile } from 'src/entities/cfo-profile.entity';
 @Injectable()
 export class UsersService {
 
-    constructor(
-      @InjectRepository(CFOProfile)
-      private readonly cfoRepo: Repository<CFOProfile>,
-      @InjectRepository(User)
-      private readonly userRepo: Repository<User>,
-    ) {}
+  constructor(
+    @InjectRepository(CFOProfile)
+    private readonly cfoRepo: Repository<CFOProfile>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+  ) { }
 
   async create(createUserDto: RegisterDto) {
     const { email, password, phoneNumber, role } = createUserDto;
@@ -49,7 +49,7 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateCFODto) {
-    
+
     // check if user with the id argument exists
     const user = await this.cfoRepo.findOne({ where: { user: { id } }, relations: ['user'] });
     if (user) {
@@ -73,7 +73,7 @@ export class UsersService {
     }
   }
 
-  async updateVerificationStatus(email:string, updateUserDto: {isVerified: boolean}) {
+  async updateVerificationStatus(email: string, updateUserDto: { isVerified: boolean }) {
     return await this.userRepo.update({ email }, updateUserDto);
   }
 
@@ -83,13 +83,13 @@ export class UsersService {
   // helper methods
   async isCfoOnboarded(cfo: CFOProfile): Promise<boolean> {
     // return await this.userRepo.update({ id }, { isOnboarded: true });
-    if (cfo.firstName && cfo.lastName && cfo.certifications && cfo.education 
-      && cfo.expertiseAreas && cfo.industries 
+    if (cfo.firstName && cfo.lastName && cfo.certifications && cfo.education
+      && cfo.expertiseAreas && cfo.industries
       && cfo.companySize && cfo.yearsOfExperience && cfo.rateExpectation && cfo.availabilityType
       && cfo.engagementLength && cfo.preferredEngagementModel) {
-        return true;
-      }
-      return false;
+      return true;
+    }
+    return false;
   }
   async verifyUserExists(email: string) {
     const user = await this.userRepo.findOne({ where: { email } });
@@ -97,14 +97,17 @@ export class UsersService {
     return user;
   }
   async findUserByEmail(email: string, role: 'sme' | 'cfo' | null = null) {
-    const user = await this.userRepo.findOne({
-       where: { email }, 
-       relations: [role ? role : ''] 
-      });
+    const query:any = {
+      where: { email },
+    }
+    if (role){
+      query.relations= role
+    }
+    const user = await this.userRepo.findOne(query);
     return user;
   }
 
-  async findUserById(id:string) {
+  async findUserById(id: string) {
     const user = await this.userRepo.findOne({ where: { id }, relations: ['cfo'] });
     return user;
   }
