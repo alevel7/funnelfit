@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { DataSource, DataSourceOptions } from "typeorm";
 
-config({ path: `.env.${process.env.NODE_ENV}` });
+config({ path: `.env.${process.env.NODE_ENV ?? 'development'}` });
 const configService = new ConfigService();
 
 console.log(process.env.NODE_ENV);
@@ -15,7 +15,7 @@ export const dataSourceOptions: DataSourceOptions = {
     username: configService.getOrThrow<string>('USERNAME'),
     password: configService.getOrThrow<string>('PASSWORD'),
     database: configService.getOrThrow<string>('DATABASE'),
-    synchronize: true, // Set to false in production
+    synchronize: false, // Set to false in production
     logging: true, // Enable logging for debugging
     migrationsTableName: 'migrations',
     migrationsRun: false,
@@ -23,9 +23,9 @@ export const dataSourceOptions: DataSourceOptions = {
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
     migrations: ['dist/db/migrations/*.js'],
     subscribers: [],
-    ssl: {
-        rejectUnauthorized: false // For development only
-    },
+    // ssl: {
+    //     rejectUnauthorized: false // For development only
+    // },
 }
 const dataSource = new DataSource(dataSourceOptions);
 export default dataSource;
