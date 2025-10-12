@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MessagingService } from './messaging.service';
-import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { ProducerService } from './queue/producer.service';
 import { EmailMessagesConsumer } from './queue/consumer.service';
-console.log(__dirname);
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -36,12 +35,15 @@ console.log(__dirname);
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configservice: ConfigService) => ({
-        redis: {
-          host: configservice.get('REDIS_HOST'),
-          port: configservice.get('REDIS_PORT'),
-        },
-      }),
+      useFactory: (configservice: ConfigService) => {
+        console.log("connecting to redis server")
+        return {
+          redis: {
+            host: configservice.get('REDIS_HOST'),
+            port: configservice.get('REDIS_PORT'),
+          },
+        }
+      },
       inject: [ConfigService],
     }),
     BullModule.registerQueueAsync({
@@ -54,6 +56,6 @@ console.log(__dirname);
     ProducerService,
     EmailMessagesConsumer
   ],
-  exports: [MessagingService, ProducerService, MailerModule, BullModule],
+  exports: [MessagingService, ProducerService, BullModule],
 })
 export class MessagingModule { }

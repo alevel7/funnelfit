@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { NdaModule } from './nda/nda.module';
 import { ProfileModule } from './profile/profile.module';
@@ -20,6 +20,8 @@ import { dataSourceOptions } from 'db/data-source';
 import { UsersModule } from './users/users.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SmeModule } from './sme/sme.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -30,6 +32,24 @@ import { SmeModule } from './sme/sme.module';
       ],
      }),
     TypeOrmModule.forRoot(dataSourceOptions),
+    // CacheModule.register({ isGlobal: true }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const store = await redisStore({
+          socket: {
+            host: configService.get<string>('REDIS_HOST'),
+            port: parseInt(configService.get<string>('REDIS_PORT')!),
+          },
+          ttl: 300000, // seconds
+        });
+        return {
+          store: () => store,
+        };
+      },
+      inject: [ConfigService],
+    }),
     AuthModule,
     NdaModule,
     ProfileModule,

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException, InternalServerErrorException, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,14 +8,14 @@ import { LoginDto, LoginType } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { authenticator } from 'otplib';
 import { UsersService } from 'src/users/users.service';
-import { ApiResponse } from 'src/common/interface/api.interface';
+import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { ValidateOtpDto } from './dto/validateOtp.dto';
 import { ProducerService } from 'src/messaging/queue/producer.service';
 import { SendResponse } from 'src/common/utils/responseHandler';
 import { PasswordResetDto } from './dto/password.dto';
 import { UserRole } from 'src/common/enums/user.enum';
-import { GoogleLoginMetaData } from 'src/common/interface/google.interface';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +27,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
     private readonly producerService: ProducerService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
     authenticator.options = { digits: 6 };
   }
@@ -39,21 +40,24 @@ export class AuthService {
     if (password !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
-
     const user = await this.userService.create({ ...dto });
 
     const secret = this.configService.getOrThrow('SECRET');
-    // const secret = speakeasy.generateSecret({ length: 20 }).base32;
-    // Generate 4-digit OTP
+
     const otp = authenticator.generate(secret);
+    
+    await this.cacheManager.set(email, otp, 300000); // Cache OTP for 5 minutes
 
     // Send OTP via email
-    await this.producerService.publishEmail({
+    this.producerService.publishEmail({
       to: email,
       subject: 'Funnelfit: Your One-Time Password',
       body: `Your OTP is: ${otp}`,
+    }).then(() => {
+      console.log(`sending email  to ${email}`)
+    }).catch((err) => {
+      console.error(`Error sending email to ${email}: ${err}`)
     });
-    console.log(user)
     return SendResponse.success(user, 'User created successfully. OTP sent to email.');
 
   };
@@ -61,9 +65,10 @@ export class AuthService {
   async validateOtp(dto: ValidateOtpDto) {
     const { otp } = dto;
     // Validate the OTP (this is just a placeholder, implement your own logic)
-    const secret = this.configService.getOrThrow('SECRET');
-
-    const isValid = authenticator.verify({ token: otp, secret });
+    // const secret = this.configService.getOrThrow('SECRET');
+    // const isValid = authenticator.verify({ token: otp, secret });
+    const cachedOtp = await this.cacheManager.get<string>(dto.email);
+    const isValid = cachedOtp === otp;
     if (!isValid) throw new BadRequestException('Invalid OTP');
     this.userService.updateVerificationStatus(dto.email, { isVerified: true });
     const user = await this.userService.findUserByEmail(dto.email);
@@ -76,11 +81,13 @@ export class AuthService {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('Invalid credentials');
     const secret = this.configService.getOrThrow('SECRET');
-    const otp = authenticator.generate(secret);
+    let otp = authenticator.generate(secret);
+    otp = await this.cacheManager.set(email, otp, 300000); // Cache OTP for 5 minutes
+    // Send OTP via email
     await this.producerService.publishEmail({
       to: email,
       subject: 'Funnelfit: Your One-Time Password',
-      body: `Your OTP is: ${otp}`,
+      body: `Your OTP is: ${otp} . It expires in 5 minutes.`,
     });
     return SendResponse.success(null, 'New OTP sent to email');
   }
