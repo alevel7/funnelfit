@@ -41,8 +41,6 @@ import { BullModule } from '@nestjs/bull';
           redis: {
             host: configservice.get('REDIS_HOST'),
             port: configservice.get('REDIS_PORT'),
-            username: configservice.get('REDIS_USERNAME'),
-            password: configservice.get('REDIS_PASSWORD'),
           },
         }
       },
