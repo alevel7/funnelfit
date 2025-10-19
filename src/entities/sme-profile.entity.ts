@@ -40,7 +40,7 @@ export class SMEProfile {
     lastName:string;
     jobTitle:string;
     email?: string;
-    phone?: string;
+      phoneNumber?: string;
   };
 
   @Column({ type: 'simple-json', nullable: true, default: [] })

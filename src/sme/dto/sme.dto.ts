@@ -92,7 +92,7 @@ export class CompanyContactDto {
 
     @IsOptional()
     @IsPhoneNumber('NG')
-    phone?: string;
+    phoneNumber?: string;
 }
 
 
