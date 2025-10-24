@@ -97,13 +97,15 @@ export class UsersService {
     return user;
   }
   async findUserByEmail(email: string, role: 'sme' | 'cfo' | null = null) {
-    const query:any = {
-      where: { email },
-    }
+    let user;
     if (role){
-      query.relations= role
+      user = await this.userRepo.findOne({
+        where: { email },
+        relations: [role]
+      });
+    } else {
+      user = await this.userRepo.findOne({where: { email }});
     }
-    const user = await this.userRepo.findOne(query);
     return user;
   }
 
