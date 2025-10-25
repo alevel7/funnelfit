@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
-import { UpdateCompanyDto } from './dto/sme.dto';
+import { CfoRequestDto, UpdateCompanyDto } from './dto/sme.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SMEProfile } from 'src/entities/sme-profile.entity';
 import { Repository } from 'typeorm';
@@ -20,18 +20,20 @@ export class SmeService {
             where: { id },
             relations: ['sme'],
         });
-       return smeProfile
+        return smeProfile
     }
 
     async updateProfile(id: string, body: UpdateCompanyDto) {
         const sme = await this.smeRepo.findOne({ where: { user: { id } } });
         if (sme) {
-            // User exists, proceed with the update
-            // const isOnboarded = await this.isCfoOnboarded(user)
-            // if (isOnboarded) {
-            //     await this.userRepo.update({ id }, { isOnboarded: true });
-            // }
-            const updatedUser = Object.assign(sme, body);
+            // mark user as onboarded if all profile fields are filled
+            const isOnboarded = await this.isSmeOnboarded(sme)
+            // if isOnboarded is true, update the isOnboarded field in the users table
+            if (isOnboarded) {
+                await this.userRepo.update({ id }, { isOnboarded: true });
+            }
+            console.log("isOnboarded:", isOnboarded);
+            const updatedUser = Object.assign(sme, { ...body, isOnboarded: isOnboarded });
             await this.smeRepo.save(updatedUser);
             const response = await this.findSMEById(id);
             return SendResponse.success(response, 'CFO Profile updated successfully');
@@ -42,5 +44,37 @@ export class SmeService {
             const response = await this.findSMEById(id);
             return SendResponse.success(response, 'CFO Profile created successfully');
         }
+    }
+    async isSmeOnboarded(sme: SMEProfile): Promise<boolean> {
+        const isCompanyInfoComplete = !!sme?.companyinfo?.address &&
+            !!sme?.companyinfo?.city &&
+            !!sme?.companyinfo?.country &&
+            !!sme?.companyinfo?.companyName &&
+            !!sme?.companyinfo?.industry &&
+            !!sme?.companyinfo?.postalCode &&
+            !!sme?.companyinfo?.state;
+
+
+        const isFinancialInfoComplete = sme?.financialGoal?.length > 0;
+
+
+        const isCommunicationPreferenceComplete = sme?.communicationPreferences?.length > 0;
+
+
+        const isAreaOfNeedComplete = sme?.areaOfNeed?.length > 0;
+
+
+        const isContactInfoComplete = !!sme?.contactPerson?.firstName && !!sme?.contactPerson?.lastName && !!sme?.contactPerson?.jobTitle && !!sme?.contactPerson?.phoneNumber;
+
+        if (isCompanyInfoComplete && isFinancialInfoComplete && isCommunicationPreferenceComplete && isAreaOfNeedComplete && isContactInfoComplete) {
+            return true;
+        }
+        return false;
+    }
+
+    async requestCFO(data: CfoRequestDto) {
+        // Here you can implement the logic to handle CFO requests
+        // For example, saving the request to the database or sending notifications
+        return SendResponse.success(data, 'CFO request submitted successfully');
     }
 }

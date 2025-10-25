@@ -17,3 +17,22 @@ export enum UserRole {
     CFO = 'CFO',
     ADMIN = 'ADMIN'
 }
+
+export enum companySizeExperience {
+    STARTUP = "startup",
+    SMALL_BUSINESS = "small_business",
+    MEDIUM_BUSINESS = "medium_business",
+    LARGE_BUSINESS = "large_business",
+    ENTERPRISE = "enterprise"
+}
+
+export enum CfoUrgencyLevel {
+    IMMEDIATE="IMMEDIATE",
+    URGENT="URGENT",
+    MODERATE="MODERATE",
+    FLEXIBLE="FLEXIBLE"
+}
+
+export enum EngagementTime {
+    
+}

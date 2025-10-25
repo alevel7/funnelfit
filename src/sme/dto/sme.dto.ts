@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsArray, IsEmail, IsEnum, IsNumber, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
-import { EngagementModel } from "src/common/enums/user.enum";
+import { CfoUrgencyLevel, companySizeExperience, EngagementModel } from "src/common/enums/user.enum";
 
 class RangeDto {
     @IsOptional()
@@ -159,3 +159,34 @@ export class UpdateCompanyDto {
 
 }
 
+class FinancialChallenge {
+    @IsOptional()
+    @IsString()
+    name: string;
+
+    @IsOptional()
+    @IsString()
+    code: string;
+
+}
+
+export class CfoRequestDto {
+    @ValidateNested()
+    @Type(() => FinancialChallenge)
+    financialChallenge: FinancialChallenge;
+    
+    @IsEnum(CfoUrgencyLevel)
+    urgencyLevel: CfoUrgencyLevel;
+
+    @IsString()
+    engagementTime: string;
+
+    @IsEnum(EngagementModel)
+    serviceType: EngagementModel;
+
+    @IsEnum(companySizeExperience)
+    cfoExperience: companySizeExperience;
+
+    @IsOptional()
+    otherRequirements: string
+}
