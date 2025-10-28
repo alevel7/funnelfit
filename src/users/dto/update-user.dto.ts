@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
 import { IsArray, IsBoolean, IsEmpty, IsEnum, isNumber, IsNumber, IsObject, IsOptional, IsPhoneNumber, IsString, IsUrl, ValidateNested } from 'class-validator';
 import { Optional } from '@nestjs/common';
-import { AvailabilityType, EngagementModel } from 'src/common/enums/user.enum';
+import { AvailabilityType, EngagementLength, EngagementModel } from 'src/common/enums/user.enum';
 import { Type } from 'class-transformer';
 
 
@@ -82,15 +82,8 @@ export class UpdateCFODto  {
     additionalPreference?: string;//
 
     @IsOptional()
-    @IsEnum([
-      '3-6_months',
-      '6-12_months',
-      '1-2_years',
-      '2+_years',
-      'ongoing',
-      'project_based'
-    ])
-    engagementLength?:string;
+    @IsEnum(EngagementLength)
+    engagementLength?: EngagementLength;
 
     @IsOptional()
     @IsEnum(EngagementModel)

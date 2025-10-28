@@ -23,7 +23,7 @@ export class SmeController {
         return this.smeService.findSMEById(user.id);
     }
 
-    @Post('dashboard')
+    @Post('cfo-request')
     @UseGuards(SMEGuard)
     async requestCFO(@Body() body: CfoRequestDto) {
         return this.smeService.requestCFO(body);

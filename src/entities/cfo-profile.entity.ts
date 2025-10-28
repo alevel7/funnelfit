@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
-import { AvailabilityType, EngagementModel } from 'src/common/enums/user.enum';
+import { AvailabilityType, EngagementLength, EngagementModel } from 'src/common/enums/user.enum';
 
 @Entity('cfo_profiles')
 export class CFOProfile {
@@ -26,7 +26,7 @@ export class CFOProfile {
   @Column({ type: 'varchar', length: 255, nullable: true })
   linkedInUrl: string;
 
-  // For an array of objects, use 'simple-json' (not array:true)
+  // this column stores certificate name, url and cert code as json array
   @Column('simple-json', { nullable: true })
   certifications: { certCode: string; name: string; url: string }[];
 
@@ -54,8 +54,8 @@ export class CFOProfile {
   @Column({ type: 'text', nullable: true })
   additionalPreference: string;
 
-  @Column({ type: 'text', nullable: true })
-  engagementLength: string;
+  @Column({ type: 'enum', enum: EngagementLength, nullable: true })
+  engagementLength: EngagementLength;
 
   @Column({ type: 'enum', enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' })
   status: string;
@@ -63,6 +63,4 @@ export class CFOProfile {
   @Column({ type: 'enum', enum: EngagementModel, nullable: true })
   preferredEngagementModel: EngagementModel;
 
-  // @Column({ type: 'text', nullable: true })
-  // workExpectationsAddedNote: string;
 }

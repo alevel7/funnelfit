@@ -10,10 +10,9 @@ import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class SmeService {
-    constructor(@InjectRepository(SMEProfile)
-    private readonly smeRepo: Repository<SMEProfile>,
-        @InjectRepository(User)
-        private readonly userRepo: Repository<User>,) { }
+    constructor(@InjectRepository(SMEProfile) private readonly smeRepo: Repository<SMEProfile>,
+        @InjectRepository(User) private readonly userRepo: Repository<User>,
+        @InjectRepository(CFOProfile) private readonly cfoRepo: Repository<CFOProfile>,) { }
 
     async findSMEById(id: string) {
         const smeProfile = await this.userRepo.findOne({
@@ -73,8 +72,19 @@ export class SmeService {
     }
 
     async requestCFO(data: CfoRequestDto) {
-        // Here you can implement the logic to handle CFO requests
-        // For example, saving the request to the database or sending notifications
-        return SendResponse.success(data, 'CFO request submitted successfully');
+        const cfos = await this.cfoRepo.createQueryBuilder('cfo')
+            .leftJoinAndSelect('cfo.user', 'user')
+            .where(`
+            EXISTS (
+                SELECT 1 FROM jsonb_array_elements(cfo.expertiseAreas::jsonb) AS expertise 
+                WHERE expertise ->> 'code' = :financialChallenge
+            )`, { financialChallenge: data.financialChallenge.code })
+            // .where(':financialChallenge = ANY (cfo.expertiseAreas::jsonb[]->>\'code\')', { financialChallenge: data.financialChallenge.code })
+            .andWhere('cfo.engagementLength = :engagementTime', { engagementTime: data.engagementLength })
+            .andWhere('cfo.preferredEngagementModel = :serviceType', { serviceType: data.serviceType })
+            .andWhere("cfo.companySize ::jsonb ->> 'code' = :cfoExperience", { cfoExperience: data.cfoExperience })
+            .getMany();
+
+        return SendResponse.success(cfos, 'CFO request submitted successfully');
     }
 }

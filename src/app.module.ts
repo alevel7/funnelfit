@@ -22,6 +22,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SmeModule } from './sme/sme.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { redisStore } from 'cache-manager-redis-store';
     UsersModule,
     CloudinaryModule,
     SmeModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsArray, IsEmail, IsEnum, IsNumber, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
-import { CfoUrgencyLevel, companySizeExperience, EngagementModel } from "src/common/enums/user.enum";
+import { CfoUrgencyLevel, companySizeExperience, EngagementLength, EngagementModel } from "src/common/enums/user.enum";
 
 class RangeDto {
     @IsOptional()
@@ -178,8 +178,8 @@ export class CfoRequestDto {
     @IsEnum(CfoUrgencyLevel)
     urgencyLevel: CfoUrgencyLevel;
 
-    @IsString()
-    engagementTime: string;
+    @IsEnum(EngagementLength)
+    engagementLength: EngagementLength;
 
     @IsEnum(EngagementModel)
     serviceType: EngagementModel;

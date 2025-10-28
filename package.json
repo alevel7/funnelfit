@@ -25,9 +25,12 @@
     "migration:create": "npm run typeorm -- migration:create -n",
     "migration:show": "npm run typeorm -- migration:show",
     "migration:revert": "npm run typeorm -- migration:revert",
-    "migration:run": "npm run typeorm -- migration:run"
+    "migration:run": "npm run typeorm -- migration:run",
+    "seed": "ts-node -r tsconfig-paths/register src/seed/seeder.command.ts",
+    "seed:prod": "NODE_ENV=production node dist/src/seed/seeder.command.js"
   },
   "dependencies": {
+    "@faker-js/faker": "^6.3.1",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/bull": "^11.0.3",
     "@nestjs/cache-manager": "^3.0.1",
