@@ -13,7 +13,7 @@ export class SMEProfile {
   @JoinColumn()
   user: User;
 
-  @Column({ type: 'simple-json', nullable: true, default: {} })
+  @Column({ type: 'jsonb', nullable: true, default: {} })
   companyinfo: {
       companyName: string;
       address: string;
@@ -27,14 +27,14 @@ export class SMEProfile {
       yearsInBusiness: { min: number, max: number, code: string }
   };
 
-  @Column({type:'simple-json', nullable:true, default:{}}) // e.g. 6 months, 1 year, 2 years
+  @Column({ type:'jsonb', nullable:true, default:{}}) // e.g. 6 months, 1 year, 2 years
   engagementDuration: {
     min: number;
     max: number;
     code: string;
   };
 
-  @Column({ type: 'simple-json', nullable: true, default: {} })
+  @Column({ type: 'jsonb', nullable: true, default: {} })
   contactPerson: {
     firstName: string;
     lastName:string;
@@ -43,13 +43,13 @@ export class SMEProfile {
       phoneNumber?: string;
   };
 
-  @Column({ type: 'simple-json', nullable: true, default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   financialGoal: { code: string, name: string }[];
 
   @Column({ type: 'text', nullable: true })
   additionalChallenges:string;
 
-  @Column({ type: 'simple-json', nullable: true, default: [] })
+  @Column({ type: 'jsonb', nullable: true, default: [] })
   areaOfNeed: { code: string, name: string }[];
 
   @Column({ type: 'text', nullable: true, default: null })

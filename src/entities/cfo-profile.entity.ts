@@ -27,22 +27,22 @@ export class CFOProfile {
   linkedInUrl: string;
 
   // this column stores certificate name, url and cert code as json array
-  @Column('simple-json', { nullable: true })
+  @Column('jsonb', { nullable: true })
   certifications: { certCode: string; name: string; url: string }[];
 
   @Column({ type: 'text', nullable: true })
   education: string;
 
-  @Column('simple-json', { nullable: true })
+  @Column('jsonb', { nullable: true })
   expertiseAreas: { code: string, name: string }[];
 
-  @Column('simple-json', { nullable: true })
+  @Column('jsonb', { nullable: true })
   industries: { code: string, name: string }[];
 
-  @Column({type: 'simple-json', nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
   companySize: { min: number; max: number, code:string };
 
-  @Column({ type: 'simple-json', nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
   yearsOfExperience: { min: number; max: number, code: string };
 
   @Column({ type: 'text', nullable: true })

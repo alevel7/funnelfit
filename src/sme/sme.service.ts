@@ -71,20 +71,30 @@ export class SmeService {
         return false;
     }
 
-    async requestCFO(data: CfoRequestDto) {
-        const cfos = await this.cfoRepo.createQueryBuilder('cfo')
+    async requestCFO(data: CfoRequestDto, page = 1, limit = 10) {
+        const pageNumber = Math.max(1, Number(page) || 1);
+        const pageSize = Math.min(100, Math.max(1, Number(limit) || 10));
+
+        const qb = this.cfoRepo.createQueryBuilder('cfo')
             .leftJoinAndSelect('cfo.user', 'user')
             .where(`
             EXISTS (
-                SELECT 1 FROM jsonb_array_elements(cfo.expertiseAreas::jsonb) AS expertise 
+                SELECT 1 FROM jsonb_array_elements(cfo."expertiseAreas") AS expertise
                 WHERE expertise ->> 'code' = :financialChallenge
             )`, { financialChallenge: data.financialChallenge.code })
-            // .where(':financialChallenge = ANY (cfo.expertiseAreas::jsonb[]->>\'code\')', { financialChallenge: data.financialChallenge.code })
             .andWhere('cfo.engagementLength = :engagementTime', { engagementTime: data.engagementLength })
             .andWhere('cfo.preferredEngagementModel = :serviceType', { serviceType: data.serviceType })
-            .andWhere("cfo.companySize ::jsonb ->> 'code' = :cfoExperience", { cfoExperience: data.cfoExperience })
-            .getMany();
+            .andWhere("cfo.companySize ::jsonb ->> 'code' = :cfoExperience", { cfoExperience: data.cfoExperience });
 
-        return SendResponse.success(cfos, 'CFO request submitted successfully');
+        const [cfos, total] = await qb.skip((pageNumber - 1) * pageSize).take(pageSize).getManyAndCount();
+
+        const meta = {
+            total,
+            page: pageNumber,
+            limit: pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
+
+        return SendResponse.success({ data: cfos, meta }, 'CFO request submitted successfully');
     }
 }
