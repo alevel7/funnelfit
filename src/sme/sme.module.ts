@@ -5,10 +5,16 @@ import { SMEProfile } from 'src/entities/sme-profile.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { CFOProfile } from 'src/entities/cfo-profile.entity';
+import { CfoRequest } from 'src/entities/cfo-request.entity';
+import { ClientRequest } from 'src/entities/client-request.entity';
+import { MessagingModule } from 'src/messaging/messaging.module';
 
 @Module({
   providers: [SmeService],
   controllers: [SmeController],
-  imports: [TypeOrmModule.forFeature([SMEProfile, User, CFOProfile])],
+  imports: [
+    TypeOrmModule.forFeature([SMEProfile, User, CFOProfile, CfoRequest, ClientRequest]),
+    MessagingModule
+  ],
 })
 export class SmeModule {}

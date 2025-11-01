@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './user.entity';
 import { AvailabilityType, EngagementLength, EngagementModel } from 'src/common/enums/user.enum';
+import { ClientRequest } from './client-request.entity';
 
 @Entity('cfo_profiles')
 export class CFOProfile {
@@ -40,7 +41,7 @@ export class CFOProfile {
   industries: { code: string, name: string }[];
 
   @Column({ type: 'jsonb', nullable: true })
-  companySize: { min: number; max: number, code:string };
+  companySize: { min: number; max: number, code: string };
 
   @Column({ type: 'jsonb', nullable: true })
   yearsOfExperience: { min: number; max: number, code: string };
@@ -63,4 +64,14 @@ export class CFOProfile {
   @Column({ type: 'enum', enum: EngagementModel, nullable: true })
   preferredEngagementModel: EngagementModel;
 
+  // tracks all client requests made to this CFO
+  @OneToMany(() => ClientRequest, clientRequests => clientRequests.cfo)
+  public clientRequests: ClientRequest[];
+
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 }

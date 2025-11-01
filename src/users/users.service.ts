@@ -8,6 +8,9 @@ import { RegisterDto } from 'src/auth/dto/register.dto';
 import * as bcrypt from 'bcryptjs';
 import { SendResponse } from 'src/common/utils/responseHandler';
 import { CFOProfile } from 'src/entities/cfo-profile.entity';
+import { ClientRequest } from 'src/entities/client-request.entity';
+import { LoggedInUser } from 'src/common/interface/jwt.interface';
+import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +20,8 @@ export class UsersService {
     private readonly cfoRepo: Repository<CFOProfile>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(ClientRequest)
+    private readonly clientRequestRepo: Repository<ClientRequest>,
   ) { }
 
   async create(createUserDto: RegisterDto) {
@@ -77,8 +82,29 @@ export class UsersService {
     return await this.userRepo.update({ email }, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async getEngagementRequests(page: number = 1, limit: number = 10, status: ClientRequestStatus,  user: LoggedInUser) {
+    const take = Math.max(1, Math.min(limit || 10, 100));
+    const skip = (Math.max(1, page) - 1) * take;
+
+    // Fetch ClientRequest rows, including the related CfoRequest and the SMEProfile (via request.sme)
+    const [items, total] = await this.clientRequestRepo.createQueryBuilder('clientRequest')
+      .leftJoinAndSelect('clientRequest.request', 'request')       // include CfoRequest
+      .leftJoinAndSelect('request.sme', 'sme')                     // include SMEProfile for each CfoRequest
+      // .leftJoinAndSelect('clientRequest.cfo', 'cfoProfile')        // include the CFOProfile assigned on ClientRequest (optional)
+      .orderBy('clientRequest.createdAt', 'DESC')
+      .skip(skip)
+      .take(take)
+      .where('clientRequest.cfoId = :userId', { userId: user.id })
+      .andWhere('clientRequest.status = :status', { status: status || ClientRequestStatus.NEW })
+      .getManyAndCount();
+
+    const meta = {
+        total,
+        page,
+        limit: take,
+    };
+
+    return SendResponse.success({ items, meta }, 'Engagement requests fetched successfully');
   }
   // helper methods
   async isCfoOnboarded(cfo: CFOProfile): Promise<boolean> {

@@ -23,6 +23,8 @@ import { SmeModule } from './sme/sme.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { SeedModule } from './seed/seed.module';
+import { name } from 'ejs';
+// import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
   imports: [
@@ -33,18 +35,23 @@ import { SeedModule } from './seed/seed.module';
       ],
      }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    // CacheModule.register({ isGlobal: true }),
+    // CacheModule.register({ 
+    //   isGlobal: true, 
+    //   ttl: 15 * 60 * 1000 
+    // }), // 15 minutes in milliseconds
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const store = await redisStore({
           socket: {
+            name: "funnelfit-cache",
             host: configService.get<string>('REDIS_HOST'),
             port: parseInt(configService.get<string>('REDIS_PORT')!),
           },
-          ttl: 300000, // seconds
+          ttl: 15 * 60 * 1000, // 15 minutes in milliseconds
         });
+        console.log('Redis cache store initialized');
         return {
           store: () => store,
         };
