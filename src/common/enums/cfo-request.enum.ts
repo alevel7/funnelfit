@@ -5,3 +5,10 @@ export enum ClientRequestStatus {
     DECLINED = "declined",
     ACCEPTED = "accepted"
 }
+
+
+export enum MeetingMode {
+    IN_PERSON = "IN_PERSON",
+    PHONE_CALL = "PHONE_CALL",
+    VIDEO_CALL = "VIDEO_CALL"
+}

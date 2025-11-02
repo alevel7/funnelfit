@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Request, HttpCode, HttpStatus, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Request, HttpCode, HttpStatus, UseGuards, Query, ParseIntPipe, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import {  UpdateCFODto } from './dto/update-user.dto';
@@ -9,6 +9,7 @@ import { Roles } from 'src/auth/guards/custom.decorator';
 import { UserRole } from 'src/common/enums/user.enum';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
+import { EngagementRequestAcceptRejectDto, ScheduleMeetingDto } from './dto/engagment-requests.dto';
 
 @Controller('users')
 export class UsersController {
@@ -20,11 +21,6 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-  
   @UseGuards(CfoGuard)
   @Get('engagement-requests')
   getEngagementRequests(
@@ -34,6 +30,25 @@ export class UsersController {
     @Request() req: any,) {
     const user: LoggedInUser = req.user
     return this.usersService.getEngagementRequests(page, limit, status, user);
+  }
+  @UseGuards(CfoGuard)
+  @Post('engagement-requests/call-schedule')
+  scheduleMeeting(
+    @Param('id') id: string,
+    @Body() body: ScheduleMeetingDto,
+    @Request() req: any,) {
+    const user: LoggedInUser = req.user
+    return this.usersService.scheduleMeeting(body, user);
+  }
+
+  @UseGuards(CfoGuard)
+  @Put('engagement-requests/:id')
+  updateEngagementRequests(
+    @Param('id') id: string,
+    @Body() body: EngagementRequestAcceptRejectDto,
+    @Request() req: any,) {
+    const user: LoggedInUser = req.user
+    return this.usersService.updateEngagementRequests(id, body, user);
   }
 
 

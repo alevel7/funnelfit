@@ -38,14 +38,13 @@ import { name } from 'ejs';
     // CacheModule.register({ 
     //   isGlobal: true, 
     //   ttl: 15 * 60 * 1000 
-    // }), // 15 minutes in milliseconds
+    // }), // 15 minutes in millisecond
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const store = await redisStore({
           socket: {
-            name: "funnelfit-cache",
             host: configService.get<string>('REDIS_HOST'),
             port: parseInt(configService.get<string>('REDIS_PORT')!),
           },

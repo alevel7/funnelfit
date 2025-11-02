@@ -11,6 +11,7 @@ import { CFOProfile } from 'src/entities/cfo-profile.entity';
 import { ClientRequest } from 'src/entities/client-request.entity';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
+import { EngagementRequestAcceptRejectDto, ScheduleMeetingDto } from './dto/engagment-requests.dto';
 
 @Injectable()
 export class UsersService {
@@ -40,8 +41,25 @@ export class UsersService {
   }
 
 
-  findAll() {
-    return `This action returns all users`;
+  async scheduleMeeting(body: ScheduleMeetingDto, user: LoggedInUser) {
+    // find the client request by cfo id
+    const clientRequest = await this.clientRequestRepo.findOne({
+      where: { 
+        id: body.clientRequestId,
+        cfo: { id: user.id } 
+      },
+    });
+    if (!clientRequest) {
+      throw new NotFoundException('Engagement request not found');
+    }
+    clientRequest.scheduledMeetDate = body.scheduledMeetDate;
+    clientRequest.meetingDurationInMinutes = body.meetingDurationInMinutes;
+    clientRequest.meetingMode = body.meetingMode;
+    if (body.additionalNotes){
+      clientRequest.additionalNotes = body.additionalNotes;
+    }
+    await this.clientRequestRepo.save(clientRequest);
+    return SendResponse.success(clientRequest, 'Meeting scheduled successfully');
   }
 
   async findOne(id: string) {
@@ -77,12 +95,23 @@ export class UsersService {
       return SendResponse.success(response, 'CFO Profile updated successfully');
     }
   }
-
-  async updateVerificationStatus(email: string, updateUserDto: { isVerified: boolean }) {
-    return await this.userRepo.update({ email }, updateUserDto);
+  async updateEngagementRequests(id: string, body: EngagementRequestAcceptRejectDto, user: LoggedInUser) {
+    const clientRequest = await this.clientRequestRepo.findOne({
+      where: { id, cfo: { id: user.id } },
+    });
+    if (!clientRequest) {
+      throw new NotFoundException('Engagement request not found');
+    }
+    if (body.accept) {
+      clientRequest.status = ClientRequestStatus.ACCEPTED;
+    } else {
+      clientRequest.status = ClientRequestStatus.DECLINED;
+    }
+    await this.clientRequestRepo.save(clientRequest);
+    return SendResponse.success(clientRequest, 'Engagement request updated successfully');
   }
 
-  async getEngagementRequests(page: number = 1, limit: number = 10, status: ClientRequestStatus,  user: LoggedInUser) {
+  async getEngagementRequests(page: number = 1, limit: number = 10, status: ClientRequestStatus, user: LoggedInUser) {
     const take = Math.max(1, Math.min(limit || 10, 100));
     const skip = (Math.max(1, page) - 1) * take;
 
@@ -106,6 +135,8 @@ export class UsersService {
 
     return SendResponse.success({ items, meta }, 'Engagement requests fetched successfully');
   }
+
+
   // helper methods
   async isCfoOnboarded(cfo: CFOProfile): Promise<boolean> {
     // return await this.userRepo.update({ id }, { isOnboarded: true });
@@ -122,6 +153,10 @@ export class UsersService {
     if (!user) throw new NotFoundException('Account not found');
     return user;
   }
+  async updateVerificationStatus(email: string, updateUserDto: { isVerified: boolean }) {
+    return await this.userRepo.update({ email }, updateUserDto);
+  }
+
   async findUserByEmail(email: string, role: 'sme' | 'cfo' | null = null) {
     let user;
     if (role){
