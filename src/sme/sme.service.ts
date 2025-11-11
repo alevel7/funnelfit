@@ -28,11 +28,16 @@ export class SmeService {
     ) { }
 
     async findSMEById(id: string) {
-        const smeProfile = await this.userRepo.findOne({
+        const smeProfile = await this.getSMeById(id);
+        return SendResponse.success(smeProfile, 'Profile retrieved successfully');
+    }
+
+    async getSMeById(id: string) {
+        const sme = await this.userRepo.findOne({
             where: { id },
             relations: ['sme'],
         });
-        return SendResponse.success(smeProfile, 'Profile retrieved successfully');
+        return sme
     }
 
     async updateProfile(id: string, body: UpdateCompanyDto) {
@@ -47,13 +52,13 @@ export class SmeService {
             console.log("isOnboarded:", isOnboarded);
             const updatedUser = Object.assign(sme, { ...body, isOnboarded: isOnboarded });
             await this.smeRepo.save(updatedUser);
-            const response = await this.findSMEById(id);
+            const response = await this.getSMeById(id);
             return SendResponse.success(response, 'CFO Profile updated successfully');
         } else {
             // User does not exist, insert new record into the database
             const newCompany = this.smeRepo.create({ user: { id }, ...body });
             await this.smeRepo.save(newCompany);
-            const response = await this.findSMEById(id);
+            const response = await this.getSMeById(id);
             return SendResponse.success(response, 'CFO Profile created successfully');
         }
     }
