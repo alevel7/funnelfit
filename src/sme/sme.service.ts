@@ -107,7 +107,7 @@ export class SmeService {
         let requests = await this.cacheManager.get<CFOProfile[]>(`cfo-requests-${requestId}`) ?? [];
         console.log("Cached CFOs for request:", requests.length);
         if (requests.length === 0) {
-            throw new NotFoundException('No CFOs found for the given request');
+            return SendResponse.success(requests, 'CFO requests retrieved successfully');
         }
         // return cached requests in pagination, 3 records at time by page number
         const startIndex = (page - 1) * 3;
@@ -132,7 +132,18 @@ export class SmeService {
             throw new NotFoundException('CFO Request not found');
         }
         const clientRequestRepo = this.cfoRequestRepo.manager.getRepository('ClientRequest');
-        let clientRequest = clientRequestRepo.create({
+        // if a record with the specified cfo and request exist return it
+        let clientRequest = await clientRequestRepo.findOne({
+            where: {
+                cfo: { id: selectedCfo.id },
+                request: { id: cfoRequest.id },
+            },
+        });
+        if (clientRequest) {
+            return SendResponse.success(clientRequest, 'Request already sent to CFO');
+        }
+        // else create a new record
+        clientRequest = clientRequestRepo.create({
             request: cfoRequest,
             cfo: selectedCfo,
         });
@@ -217,7 +228,7 @@ export class SmeService {
             .sort((a, b) => b.match_score - a.match_score)
             .slice(offset, offset + limit);
         await this.cacheManager.set(`cfo-requests-${request.id}`, sorted ); // cache for 10 minutes
-        return SendResponse.success({ cfos, meta, request }, 'CFO request submitted successfully');
+        return SendResponse.success({ meta, request }, 'CFO request submitted successfully');
     }
 
     // Compute weighted score (same as before)

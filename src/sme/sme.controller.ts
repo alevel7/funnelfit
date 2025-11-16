@@ -38,7 +38,7 @@ export class SmeController {
         return this.smeService.getCFORequests(user.id);
     }
 
-    @Get('cfo-requests/:requestId/')
+    @Get('cfo-requests/:requestId/matches')
     @UseGuards(SMEGuard)
     async getCFORequestResult(
         @Request() req: any, 
