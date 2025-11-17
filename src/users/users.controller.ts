@@ -1,7 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Request, HttpCode, HttpStatus, UseGuards, Query, ParseIntPipe, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Request,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Query,
+  ParseIntPipe,
+  Put,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import {  UpdateCFODto } from './dto/update-user.dto';
+import { UpdateCFODto } from './dto/update-user.dto';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { CfoGuard } from 'src/auth/guards/cfo.guard';
 import { RolesGuard } from 'src/auth/guards/RolesGuard.guard';
@@ -9,7 +23,10 @@ import { Roles } from 'src/auth/guards/custom.decorator';
 import { UserRole } from 'src/common/enums/user.enum';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
-import { EngagementRequestAcceptRejectDto, ScheduleMeetingDto } from './dto/engagment-requests.dto';
+import {
+  EngagementRequestAcceptRejectDto,
+  ScheduleMeetingDto,
+} from './dto/engagment-requests.dto';
 
 @Controller('users')
 export class UsersController {
@@ -27,8 +44,9 @@ export class UsersController {
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
     @Query('status') status: ClientRequestStatus,
-    @Request() req: any,) {
-    const user: LoggedInUser = req.user
+    @Request() req: any,
+  ) {
+    const user: LoggedInUser = req.user;
     return this.usersService.getEngagementRequests(page, limit, status, user);
   }
   @UseGuards(CfoGuard)
@@ -36,8 +54,9 @@ export class UsersController {
   scheduleMeeting(
     @Param('id') id: string,
     @Body() body: ScheduleMeetingDto,
-    @Request() req: any,) {
-    const user: LoggedInUser = req.user
+    @Request() req: any,
+  ) {
+    const user: LoggedInUser = req.user;
     return this.usersService.scheduleMeeting(body, user);
   }
 
@@ -46,11 +65,11 @@ export class UsersController {
   updateEngagementRequests(
     @Param('id') id: string,
     @Body() body: EngagementRequestAcceptRejectDto,
-    @Request() req: any,) {
-    const user: LoggedInUser = req.user
+    @Request() req: any,
+  ) {
+    const user: LoggedInUser = req.user;
     return this.usersService.updateEngagementRequests(id, body, user);
   }
-
 
   @UseGuards(RolesGuard)
   @Roles(UserRole.CFO, UserRole.SME)
@@ -64,5 +83,4 @@ export class UsersController {
   update(@Param('id') id: string, @Body() updateUserDto: UpdateCFODto) {
     return this.usersService.update(id, updateUserDto);
   }
-
 }

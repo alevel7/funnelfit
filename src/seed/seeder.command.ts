@@ -4,18 +4,21 @@ import { SeedService } from './seed.service';
 
 async function runSeeders() {
   const app = await NestFactory.createApplicationContext(AppModule);
-  
-    const userSeeder = app.get(SeedService);
-  
+
+  const userSeeder = app.get(SeedService);
+
   try {
     console.log('🌱 Starting database seeding...');
-    
+
     // Optional: Clear existing data
     // await userSeeder.clear();
-    
+
     // Seed users
-    await userSeeder.seedUsers();
-    
+    // await userSeeder.seedUsers();
+
+    // seed requests
+    await userSeeder.seedCfoRequest();
+
     console.log('✅ Database seeding completed successfully');
   } catch (error) {
     console.error('❌ Error during seeding:', error);

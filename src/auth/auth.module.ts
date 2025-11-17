@@ -14,13 +14,13 @@ import { AuthStrategy } from './strategy/auth.strategy';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.getOrThrow('SECRET'),
-        signOptions: { expiresIn: '1d' }
+        signOptions: { expiresIn: '1d' },
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
     UsersModule,
     MessagingModule,
-    ConfigModule
+    ConfigModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, GoogleStrategy, AuthStrategy],

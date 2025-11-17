@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { AuthenticationGuard } from './auth.guard';
 import { UserRole } from 'src/common/enums/user.enum';
 
@@ -13,7 +18,9 @@ export class CfoGuard extends AuthenticationGuard implements CanActivate {
     const user = request.user;
 
     if (user?.role !== UserRole.CFO) {
-      throw new ForbiddenException('Authorization error: Only CFOs are allowed');
+      throw new ForbiddenException(
+        'Authorization error: Only CFOs are allowed',
+      );
     }
     return true;
   }

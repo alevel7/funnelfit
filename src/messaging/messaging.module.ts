@@ -36,13 +36,13 @@ import { BullModule } from '@nestjs/bull';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configservice: ConfigService) => {
-        console.log("connecting to redis server")
+        console.log('connecting to redis server');
         return {
           redis: {
             host: configservice.get('REDIS_HOST'),
             port: configservice.get('REDIS_PORT'),
           },
-        }
+        };
       },
       inject: [ConfigService],
     }),
@@ -51,11 +51,7 @@ import { BullModule } from '@nestjs/bull';
     }),
   ],
   controllers: [],
-  providers: [
-    MessagingService,
-    ProducerService,
-    EmailMessagesConsumer
-  ],
+  providers: [MessagingService, ProducerService, EmailMessagesConsumer],
   exports: [MessagingService, ProducerService, BullModule],
 })
-export class MessagingModule { }
+export class MessagingModule {}

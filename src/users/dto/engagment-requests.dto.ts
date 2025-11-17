@@ -1,26 +1,33 @@
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUUID } from "class-validator";
-import { MeetingMode } from "src/common/enums/cfo-request.enum";
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { MeetingMode } from 'src/common/enums/cfo-request.enum';
 
 export class EngagementRequestAcceptRejectDto {
-
-    @IsBoolean()
-    accept: boolean
+  @IsBoolean()
+  accept: boolean;
 }
 
 export class ScheduleMeetingDto {
-    @IsDateString()
-    scheduledMeetDate: Date
+  @IsDateString()
+  scheduledMeetDate: Date;
 
-    @IsInt()
-    meetingDurationInMinutes: number
+  @IsInt()
+  meetingDurationInMinutes: number;
 
-    @IsEnum(MeetingMode)
-    meetingMode: MeetingMode
+  @IsEnum(MeetingMode)
+  meetingMode: MeetingMode;
 
-    @IsOptional()
-    @IsString()
-    additionalNotes?: string
+  @IsOptional()
+  @IsString()
+  additionalNotes?: string;
 
-    @IsUUID()
-    clientRequestId: string
+  @IsUUID()
+  clientRequestId: string;
 }

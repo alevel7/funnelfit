@@ -10,7 +10,7 @@ export class ProducerService {
     private readonly configService: ConfigService,
     @InjectQueue('email')
     private readonly emailQueue: Queue,
-  ) { }
+  ) {}
 
   async publishEmail(request: EmailDto) {
     await this.emailQueue.add('email-job', request);

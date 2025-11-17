@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('engagements')
@@ -20,7 +26,11 @@ export class Engagement {
   @Column({ type: 'date', nullable: true })
   end_date: Date;
 
-  @Column({ type: 'enum', enum: ['ACTIVE', 'COMPLETED', 'CANCELLED'], default: 'ACTIVE' })
+  @Column({
+    type: 'enum',
+    enum: ['ACTIVE', 'COMPLETED', 'CANCELLED'],
+    default: 'ACTIVE',
+  })
   status: string;
 
   @Column({ type: 'enum', enum: ['UPTO_5_HRS', 'UPTO_15_HRS', 'UPTO_25_HRS'] })

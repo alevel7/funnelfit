@@ -1,192 +1,200 @@
-import { Type } from "class-transformer";
-import { IsArray, IsEmail, IsEnum, IsNumber, IsOptional, IsPhoneNumber, IsString, ValidateNested } from "class-validator";
-import { CfoUrgencyLevel, companySizeExperience, EngagementLength, EngagementModel } from "src/common/enums/user.enum";
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import {
+  CfoUrgencyLevel,
+  companySizeExperience,
+  EngagementLength,
+  EngagementModel,
+} from 'src/common/enums/user.enum';
 
 class RangeDto {
-    @IsOptional()
-    @IsNumber()
-    min: number;
+  @IsOptional()
+  @IsNumber()
+  min: number;
 
-    @IsOptional()
-    @IsNumber()
-    max: number;
+  @IsOptional()
+  @IsNumber()
+  max: number;
 
-    @IsOptional()
-    @IsString()
-    code: string;
-
+  @IsOptional()
+  @IsString()
+  code: string;
 }
 class Industry {
-    @IsOptional()
-    @IsString()
-    name: string;
+  @IsOptional()
+  @IsString()
+  name: string;
 
-    @IsOptional()
-    @IsString()
-    code: string;
-
+  @IsOptional()
+  @IsString()
+  code: string;
 }
 
 export class CompanyProfileDto {
-    @IsOptional()
-    @IsString()
-    companyName: string;
+  @IsOptional()
+  @IsString()
+  companyName: string;
 
-    @IsOptional()
-    @IsString()
-    address: string;
+  @IsOptional()
+  @IsString()
+  address: string;
 
-    @IsOptional()
-    @IsString()
-    city: string;
+  @IsOptional()
+  @IsString()
+  city: string;
 
-    @IsOptional()
-    @IsString()
-    state: string;
+  @IsOptional()
+  @IsString()
+  state: string;
 
-    @IsOptional()
-    @IsString()
-    postalCode: string;
+  @IsOptional()
+  @IsString()
+  postalCode: string;
 
-    @IsOptional()
-    @IsString()
-    country: string;
+  @IsOptional()
+  @IsString()
+  country: string;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => Industry)
-    industry: Industry;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Industry)
+  industry: Industry;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => RangeDto)
-    revenue: RangeDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RangeDto)
+  revenue: RangeDto;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => RangeDto)
-    employees: RangeDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RangeDto)
+  employees: RangeDto;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => RangeDto)
-    yearsInBusiness: RangeDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RangeDto)
+  yearsInBusiness: RangeDto;
 }
 
 export class CompanyContactDto {
-    @IsOptional()
-    @IsString()
-    firstName: string;
+  @IsOptional()
+  @IsString()
+  firstName: string;
 
-    @IsOptional()
-    @IsString()
-    lastName: string;
+  @IsOptional()
+  @IsString()
+  lastName: string;
 
-    @IsOptional()
-    @IsString()
-    jobTitle: string;
+  @IsOptional()
+  @IsString()
+  jobTitle: string;
 
-    @IsOptional()
-    @IsEmail()
-    email?: string;
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
-    @IsOptional()
-    @IsPhoneNumber('NG')
-    phoneNumber?: string;
+  @IsOptional()
+  @IsPhoneNumber('NG')
+  phoneNumber?: string;
 }
 
-
 class FinancialGoalDto {
-    @IsString()
-    code: string;
+  @IsString()
+  code: string;
 
-    @IsString()
-    name: string;
+  @IsString()
+  name: string;
 }
 
 class AreaOfNeed {
-    @IsString()
-    code: string;
+  @IsString()
+  code: string;
 
-    @IsString()
-    name: string;
+  @IsString()
+  name: string;
 }
 
 export class UpdateCompanyDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CompanyProfileDto)
+  companyinfo?: CompanyProfileDto;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => CompanyProfileDto)
-    companyinfo?: CompanyProfileDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CompanyContactDto)
+  contactPerson?: CompanyContactDto;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => CompanyContactDto)
-    contactPerson?: CompanyContactDto;
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FinancialGoalDto)
+  financialGoal?: FinancialGoalDto[];
 
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => FinancialGoalDto)
-    financialGoal?: FinancialGoalDto[];
+  @IsOptional()
+  @IsString()
+  additionalChallenges?: string;
 
-    @IsOptional()
-    @IsString()
-    additionalChallenges?: string;
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AreaOfNeed)
+  areaOfNeed?: AreaOfNeed[];
 
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => AreaOfNeed)
-    areaOfNeed?: AreaOfNeed[];
+  @IsOptional()
+  @IsString()
+  additionalRequirement?: string;
 
-    @IsOptional()
-    @IsString()
-    additionalRequirement?: string;
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => RangeDto)
+  engagementDuration: RangeDto;
 
-    @IsOptional()
-    @ValidateNested({ each: true })
-    @Type(() => RangeDto)
-    engagementDuration: RangeDto;
+  @IsOptional()
+  @IsEnum(EngagementModel)
+  preferredEngagementModel?: EngagementModel;
 
-    @IsOptional()
-    @IsEnum(EngagementModel)
-    preferredEngagementModel?: EngagementModel;
-
-    @IsOptional()
-    @IsArray()
-    communicationPreferences?: ('email' | 'phone' | 'call' | 'in-person')[];
-
+  @IsOptional()
+  @IsArray()
+  communicationPreferences?: ('email' | 'phone' | 'call' | 'in-person')[];
 }
 
 class FinancialChallenge {
-    @IsOptional()
-    @IsString()
-    name: string;
+  @IsOptional()
+  @IsString()
+  name: string;
 
-    @IsOptional()
-    @IsString()
-    code: string;
-
+  @IsOptional()
+  @IsString()
+  code: string;
 }
 
 export class CfoRequestDto {
-    @ValidateNested()
-    @Type(() => FinancialChallenge)
-    financialChallenge: FinancialChallenge;
-    
-    @IsEnum(CfoUrgencyLevel)
-    urgencyLevel: CfoUrgencyLevel;
+  @ValidateNested()
+  @Type(() => FinancialChallenge)
+  financialChallenge: FinancialChallenge;
 
-    @IsEnum(EngagementLength)
-    engagementLength: EngagementLength;
+  @IsEnum(CfoUrgencyLevel)
+  urgencyLevel: CfoUrgencyLevel;
 
-    @IsEnum(EngagementModel)
-    serviceType: EngagementModel;
+  @IsEnum(EngagementLength)
+  engagementLength: EngagementLength;
 
-    @IsEnum(companySizeExperience)
-    cfoExperience: companySizeExperience;
+  @IsEnum(EngagementModel)
+  serviceType: EngagementModel;
 
-    @IsOptional()
-    otherRequirements: string
+  @IsEnum(companySizeExperience)
+  cfoExperience: companySizeExperience;
+
+  @IsOptional()
+  otherRequirements: string;
 }

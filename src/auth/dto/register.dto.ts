@@ -3,7 +3,6 @@ import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
 import { UserRole } from 'src/common/enums/user.enum';
 
 export class RegisterDto {
-
   @ApiProperty({ example: 'John@gmail.com' })
   @IsEmail()
   email: string;

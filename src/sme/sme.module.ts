@@ -13,8 +13,14 @@ import { MessagingModule } from 'src/messaging/messaging.module';
   providers: [SmeService],
   controllers: [SmeController],
   imports: [
-    TypeOrmModule.forFeature([SMEProfile, User, CFOProfile, CfoRequest, ClientRequest]),
-    MessagingModule
+    TypeOrmModule.forFeature([
+      SMEProfile,
+      User,
+      CFOProfile,
+      CfoRequest,
+      ClientRequest,
+    ]),
+    MessagingModule,
   ],
 })
 export class SmeModule {}

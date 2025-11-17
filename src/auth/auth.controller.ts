@@ -1,4 +1,13 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -28,8 +37,12 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Sign up a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully.', type: User })
-  async register(@Body() dto: RegisterDto){
+  @ApiResponse({
+    status: 201,
+    description: 'User created successfully.',
+    type: User,
+  })
+  async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
@@ -43,7 +56,7 @@ export class AuthController {
     return this.authService.getNewOtp(dto.email);
   }
 
-  @Post("forgot-password")
+  @Post('forgot-password')
   async getPasswordResetOtp(@Body() dto: NewOtpDto) {
     return this.authService.getNewOtp(dto.email);
   }

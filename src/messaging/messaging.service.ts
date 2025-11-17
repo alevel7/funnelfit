@@ -24,10 +24,9 @@ export class MessagingService {
         },
       });
       console.log(`Email sent to ${emailDto.to}`);
-      console.log(result)
+      console.log(result);
     } catch (error) {
       console.error(`Error sending email to ${emailDto.to}: ${error}`);
     }
   }
-
 }

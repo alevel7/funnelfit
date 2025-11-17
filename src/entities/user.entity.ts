@@ -1,5 +1,13 @@
 import { Exclude } from 'class-transformer';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  OneToMany,
+} from 'typeorm';
 import { CFOProfile } from './cfo-profile.entity';
 import { SMEProfile } from './sme-profile.entity';
 import { LoginType } from 'src/auth/dto/login.dto';
@@ -21,7 +29,10 @@ export class User {
   @Column({ nullable: true })
   phoneNumber: string;
 
-  @Column({ type: 'enum', enum: ['SME', 'CFO', 'ADMIN', 'REVIEWER', 'ENGAGEMENT_MANAGER'] })
+  @Column({
+    type: 'enum',
+    enum: ['SME', 'CFO', 'ADMIN', 'REVIEWER', 'ENGAGEMENT_MANAGER'],
+  })
   role: string;
 
   @Column({ default: false })
@@ -30,7 +41,11 @@ export class User {
   @Column({ default: false })
   isOnboarded: boolean;
 
-  @Column({ type: 'enum', enum: ['ACTIVE', 'INACTIVE', 'PENDING'], default: 'PENDING' })
+  @Column({
+    type: 'enum',
+    enum: ['ACTIVE', 'INACTIVE', 'PENDING'],
+    default: 'PENDING',
+  })
   status: string;
 
   // @Column({ nullable: true, default: LoginType.STANDARD })
@@ -43,11 +58,9 @@ export class User {
   @OneToOne(() => SMEProfile, (smeProfile) => smeProfile.user)
   sme: SMEProfile;
 
-
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
-
 }

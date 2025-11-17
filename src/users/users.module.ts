@@ -10,13 +10,9 @@ import { ClientRequest } from 'src/entities/client-request.entity';
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
-    TypeOrmModule.forFeature([
-      User,
-      CFOProfile,
-      ClientRequest
-    ]),
+    TypeOrmModule.forFeature([User, CFOProfile, ClientRequest]),
     // MessagingModule
   ],
-  exports: [UsersService, TypeOrmModule.forFeature([User, CFOProfile, ])],
+  exports: [UsersService, TypeOrmModule.forFeature([User, CFOProfile])],
 })
 export class UsersModule {}

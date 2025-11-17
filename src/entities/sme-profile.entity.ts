@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { EngagementModel } from 'src/common/enums/user.enum';
 import { CfoRequest } from './cfo-request.entity';
@@ -24,10 +33,10 @@ export class SMEProfile {
     state: string;
     postalCode: string;
     country: string;
-    industry: { code: string, name: string };
-    revenue: { min: number, max: number, code: string }
-    employees: { min: number, max: number, code: string }
-    yearsInBusiness: { min: number, max: number, code: string }
+    industry: { code: string; name: string };
+    revenue: { min: number; max: number; code: string };
+    employees: { min: number; max: number; code: string };
+    yearsInBusiness: { min: number; max: number; code: string };
   };
 
   @Column({ type: 'jsonb', nullable: true, default: {} }) // e.g. 6 months, 1 year, 2 years
@@ -47,13 +56,13 @@ export class SMEProfile {
   };
 
   @Column({ type: 'jsonb', nullable: true, default: [] })
-  financialGoal: { code: string, name: string }[];
+  financialGoal: { code: string; name: string }[];
 
   @Column({ type: 'text', nullable: true })
   additionalChallenges: string;
 
   @Column({ type: 'jsonb', nullable: true, default: [] })
-  areaOfNeed: { code: string, name: string }[];
+  areaOfNeed: { code: string; name: string }[];
 
   @Column({ type: 'text', nullable: true, default: null })
   additionalRequirement: string;

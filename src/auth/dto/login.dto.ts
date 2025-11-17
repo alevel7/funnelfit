@@ -17,8 +17,7 @@ export class LoginDto {
   // role: UserRole;
 }
 
-
-export enum LoginType  {
+export enum LoginType {
   STANDARD = 'STANDARD',
   GOOGLE = 'GOOGLE',
 }

@@ -1,4 +1,3 @@
-
 export class EmailDto {
   to: string;
   toName?: string;

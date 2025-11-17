@@ -19,7 +19,11 @@ export class Task {
   @Column({ type: 'date' })
   due_date: Date;
 
-  @Column({ type: 'enum', enum: ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED'], default: 'OPEN' })
+  @Column({
+    type: 'enum',
+    enum: ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED'],
+    default: 'OPEN',
+  })
   status: string;
 
   @ManyToOne(() => User)

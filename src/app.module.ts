@@ -28,16 +28,14 @@ import { name } from 'ejs';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        `${process.cwd()}/.env.${process.env.NODE_ENV}`,
-      ],
-     }),
+      envFilePath: [`${process.cwd()}/.env.${process.env.NODE_ENV}`],
+    }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    // CacheModule.register({ 
-    //   isGlobal: true, 
-    //   ttl: 15 * 60 * 1000 
+    // CacheModule.register({
+    //   isGlobal: true,
+    //   ttl: 15 * 60 * 1000
     // }), // 15 minutes in millisecond
     CacheModule.registerAsync({
       isGlobal: true,

@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { AuthenticationGuard } from './auth.guard';
 import { UserRole } from 'src/common/enums/user.enum';
 
@@ -13,7 +18,9 @@ export class SMEGuard extends AuthenticationGuard implements CanActivate {
     const user = request.user;
 
     if (user?.role !== UserRole.SME) {
-      throw new ForbiddenException('Authorization error: Only SMEs are allowed');
+      throw new ForbiddenException(
+        'Authorization error: Only SMEs are allowed',
+      );
     }
     return true;
   }

@@ -1,4 +1,11 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException, InternalServerErrorException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+  InternalServerErrorException,
+  Inject,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,7 +26,6 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
@@ -27,7 +33,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
     private readonly producerService: ProducerService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     authenticator.options = { digits: 6 };
   }
@@ -45,22 +51,27 @@ export class AuthService {
     const secret = this.configService.getOrThrow('SECRET');
 
     const otp = authenticator.generate(secret);
-    
+
     await this.cacheManager.set(email, otp, 300000); // Cache OTP for 5 minutes
 
     // Send OTP via email
-    this.producerService.publishEmail({
-      to: email,
-      subject: 'Funnelfit: Your One-Time Password',
-      body: `Your OTP is: ${otp}`,
-    }).then(() => {
-      console.log(`sending email  to ${email}`)
-    }).catch((err) => {
-      console.error(`Error sending email to ${email}: ${err}`)
-    });
-    return SendResponse.success(user, 'User created successfully. OTP sent to email.');
-
-  };
+    this.producerService
+      .publishEmail({
+        to: email,
+        subject: 'Funnelfit: Your One-Time Password',
+        body: `Your OTP is: ${otp}`,
+      })
+      .then(() => {
+        console.log(`sending email  to ${email}`);
+      })
+      .catch((err) => {
+        console.error(`Error sending email to ${email}: ${err}`);
+      });
+    return SendResponse.success(
+      user,
+      'User created successfully. OTP sent to email.',
+    );
+  }
 
   async validateOtp(dto: ValidateOtpDto) {
     const { otp } = dto;
@@ -95,12 +106,15 @@ export class AuthService {
   async login(dto: LoginDto) {
     let user = await this.userService.verifyUserExists(dto.email);
     if (user.role === UserRole.CFO) {
-      user = await this.userService.findUserByEmail(dto.email, 'cfo') as User;
+      user = (await this.userService.findUserByEmail(dto.email, 'cfo')) as User;
     } else {
-      user = await this.userService.findUserByEmail(dto.email, 'sme') as User;
+      user = (await this.userService.findUserByEmail(dto.email, 'sme')) as User;
     }
     if (!user) throw new UnauthorizedException('Invalid credentials');
-    if (!user.isVerified) throw new UnauthorizedException('User not verified. Please validate your OTP.');
+    if (!user.isVerified)
+      throw new UnauthorizedException(
+        'User not verified. Please validate your OTP.',
+      );
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
     const payload = { id: user.id, email: user.email, role: user.role };
@@ -117,12 +131,20 @@ export class AuthService {
   }
 
   async validateOAuthLogin(email: string, role: UserRole): Promise<User> {
-    const existingUser = await this.userRepo.findOne({ where: { email: email } });
+    const existingUser = await this.userRepo.findOne({
+      where: { email: email },
+    });
     if (existingUser) {
       return existingUser;
     }
-    const pwd = ''
-    const user = await this.userService.create({ email, role, password: pwd, confirmPassword: pwd, phoneNumber: '' });
+    const pwd = '';
+    const user = await this.userService.create({
+      email,
+      role,
+      password: pwd,
+      confirmPassword: pwd,
+      phoneNumber: '',
+    });
     const secret = this.configService.getOrThrow('SECRET');
     const otp = authenticator.generate(secret);
     await this.producerService.publishEmail({
@@ -130,7 +152,6 @@ export class AuthService {
       subject: 'Funnelfit: Your One-Time Password',
       body: `Your OTP is: ${otp}`,
     });
-    return user
+    return user;
   }
-
 }

@@ -1,6 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
-import { AvailabilityType, EngagementLength, EngagementModel } from 'src/common/enums/user.enum';
+import {
+  AvailabilityType,
+  EngagementLength,
+  EngagementModel,
+} from 'src/common/enums/user.enum';
 import { ClientRequest } from './client-request.entity';
 
 @Entity('cfo_profiles')
@@ -35,16 +48,16 @@ export class CFOProfile {
   education: string;
 
   @Column('jsonb', { nullable: true })
-  expertiseAreas: { code: string, name: string }[];
+  expertiseAreas: { code: string; name: string }[];
 
   @Column('jsonb', { nullable: true })
-  industries: { code: string, name: string }[];
+  industries: { code: string; name: string }[];
 
   @Column({ type: 'jsonb', nullable: true })
-  companySize: { min: number; max: number, code: string };
+  companySize: { min: number; max: number; code: string };
 
   @Column({ type: 'jsonb', nullable: true })
-  yearsOfExperience: { min: number; max: number, code: string };
+  yearsOfExperience: { min: number; max: number; code: string };
 
   @Column({ type: 'text', nullable: true })
   rateExpectation: string;
@@ -58,16 +71,19 @@ export class CFOProfile {
   @Column({ type: 'enum', enum: EngagementLength, nullable: true })
   engagementLength: EngagementLength;
 
-  @Column({ type: 'enum', enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' })
+  @Column({
+    type: 'enum',
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+    default: 'PENDING',
+  })
   status: string;
 
   @Column({ type: 'enum', enum: EngagementModel, nullable: true })
   preferredEngagementModel: EngagementModel;
 
   // tracks all client requests made to this CFO
-  @OneToMany(() => ClientRequest, clientRequests => clientRequests.cfo)
+  @OneToMany(() => ClientRequest, (clientRequests) => clientRequests.cfo)
   public clientRequests: ClientRequest[];
-
 
   @CreateDateColumn()
   createdAt: Date;

@@ -12,14 +12,12 @@ import { EmailDto } from '../dto/message.dto';
 // import { InjectRepository } from '@nestjs/typeorm';
 // import * as NodeCache from 'node-cache';
 
-
-
 @Processor('email')
 export class EmailMessagesConsumer {
   constructor(
     private readonly messagingService: MessagingService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   @Process('email-job')
   async handleTranscode(job: Job) {

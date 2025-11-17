@@ -15,11 +15,13 @@ async function bootstrap() {
   } else {
     const app = await NestFactory.create(AppModule);
 
-    app.useGlobalPipes(new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      // skipMissingProperties: true,
-    }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        // skipMissingProperties: true,
+      }),
+    );
 
     app.enableCors();
 
@@ -31,13 +33,14 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
-
     app.use(
       session({
         secret: process.env.SECRET, // use a strong secret in production!
         resave: false,
         saveUninitialized: false,
-        cookie: { secure: process.env.NODE_ENV === 'production' ? true : false }, // set to true if using HTTPS
+        cookie: {
+          secure: process.env.NODE_ENV === 'production' ? true : false,
+        }, // set to true if using HTTPS
       }),
     );
     app.use(passport.initialize());

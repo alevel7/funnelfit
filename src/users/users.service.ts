@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateCFODto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,11 +16,13 @@ import { CFOProfile } from 'src/entities/cfo-profile.entity';
 import { ClientRequest } from 'src/entities/client-request.entity';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
-import { EngagementRequestAcceptRejectDto, ScheduleMeetingDto } from './dto/engagment-requests.dto';
+import {
+  EngagementRequestAcceptRejectDto,
+  ScheduleMeetingDto,
+} from './dto/engagment-requests.dto';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectRepository(CFOProfile)
     private readonly cfoRepo: Repository<CFOProfile>,
@@ -23,7 +30,7 @@ export class UsersService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(ClientRequest)
     private readonly clientRequestRepo: Repository<ClientRequest>,
-  ) { }
+  ) {}
 
   async create(createUserDto: RegisterDto) {
     const { email, password, phoneNumber, role } = createUserDto;
@@ -37,16 +44,15 @@ export class UsersService {
     });
     const result = await this.userRepo.save(user);
     delete (result as any)?.password;
-    return result
+    return result;
   }
-
 
   async scheduleMeeting(body: ScheduleMeetingDto, user: LoggedInUser) {
     // find the client request by cfo id
     const clientRequest = await this.clientRequestRepo.findOne({
-      where: { 
+      where: {
         id: body.clientRequestId,
-        cfo: { id: user.id } 
+        cfo: { id: user.id },
       },
     });
     if (!clientRequest) {
@@ -55,11 +61,15 @@ export class UsersService {
     clientRequest.scheduledMeetDate = body.scheduledMeetDate;
     clientRequest.meetingDurationInMinutes = body.meetingDurationInMinutes;
     clientRequest.meetingMode = body.meetingMode;
-    if (body.additionalNotes){
+    clientRequest.status = ClientRequestStatus.SCHEDULED;
+    if (body.additionalNotes) {
       clientRequest.additionalNotes = body.additionalNotes;
     }
     await this.clientRequestRepo.save(clientRequest);
-    return SendResponse.success(clientRequest, 'Meeting scheduled successfully');
+    return SendResponse.success(
+      clientRequest,
+      'Meeting scheduled successfully',
+    );
   }
 
   async findOne(id: string) {
@@ -68,16 +78,21 @@ export class UsersService {
       relations: ['user'],
     });
     if (!cfoProfile) throw new NotFoundException('CFO Profile not found');
-    return SendResponse.success<CFOProfile>(cfoProfile, 'CFO Profile fetched successfully');
+    return SendResponse.success<CFOProfile>(
+      cfoProfile,
+      'CFO Profile fetched successfully',
+    );
   }
 
   async update(id: string, updateUserDto: UpdateCFODto) {
-
     // check if user with the id argument exists
-    const user = await this.cfoRepo.findOne({ where: { user: { id } }, relations: ['user'] });
+    const user = await this.cfoRepo.findOne({
+      where: { user: { id } },
+      relations: ['user'],
+    });
     if (user) {
       // mark user as onboarded if all profile fields are filled
-      const isOnboarded = await this.isCfoOnboarded(user)
+      const isOnboarded = await this.isCfoOnboarded(user);
       // if isOnboarded is true, update the isOnboarded field in the users table
       if (isOnboarded) {
         await this.userRepo.update({ id }, { isOnboarded: true });
@@ -85,7 +100,7 @@ export class UsersService {
       // User exists, proceed with the update
       const updatedUser = Object.assign(user, updateUserDto);
       await this.cfoRepo.save(updatedUser);
-      const response = await this.findUserById(id)
+      const response = await this.findUserById(id);
       return SendResponse.success(response, 'CFO Profile updated successfully');
     } else {
       // User does not exist, insert new record into the database
@@ -95,7 +110,11 @@ export class UsersService {
       return SendResponse.success(response, 'CFO Profile updated successfully');
     }
   }
-  async updateEngagementRequests(id: string, body: EngagementRequestAcceptRejectDto, user: LoggedInUser) {
+  async updateEngagementRequests(
+    id: string,
+    body: EngagementRequestAcceptRejectDto,
+    user: LoggedInUser,
+  ) {
     const clientRequest = await this.clientRequestRepo.findOne({
       where: { id, cfo: { id: user.id } },
     });
@@ -108,42 +127,72 @@ export class UsersService {
       clientRequest.status = ClientRequestStatus.DECLINED;
     }
     await this.clientRequestRepo.save(clientRequest);
-    return SendResponse.success(clientRequest, 'Engagement request updated successfully');
+    return SendResponse.success(
+      clientRequest,
+      'Engagement request updated successfully',
+    );
   }
 
-  async getEngagementRequests(page: number = 1, limit: number = 10, status: ClientRequestStatus, user: LoggedInUser) {
+  async getEngagementRequests(
+    page: number = 1,
+    limit: number = 10,
+    status: ClientRequestStatus,
+    user: LoggedInUser,
+  ) {
     const take = Math.max(1, Math.min(limit || 10, 100));
     const skip = (Math.max(1, page) - 1) * take;
 
+    const cfoProfile = await this.cfoRepo.findOne({
+      where: { user: { id: user.id } },
+    });
+    if (!cfoProfile) {
+      throw new UnauthorizedException('CFO profile not found');
+    }
+
     // Fetch ClientRequest rows, including the related CfoRequest and the SMEProfile (via request.sme)
-    const [items, total] = await this.clientRequestRepo.createQueryBuilder('clientRequest')
-      .leftJoinAndSelect('clientRequest.request', 'request')       // include CfoRequest
-      .leftJoinAndSelect('request.sme', 'sme')                     // include SMEProfile for each CfoRequest
+    const [items, total] = await this.clientRequestRepo
+      .createQueryBuilder('clientRequest')
+      .leftJoinAndSelect('clientRequest.request', 'request') // include CfoRequest
+      .leftJoinAndSelect('request.sme', 'sme') // include SMEProfile for each CfoRequest
       // .leftJoinAndSelect('clientRequest.cfo', 'cfoProfile')        // include the CFOProfile assigned on ClientRequest (optional)
       .orderBy('clientRequest.createdAt', 'DESC')
       .skip(skip)
       .take(take)
-      .where('clientRequest.cfoId = :userId', { userId: user.id })
-      .andWhere('clientRequest.status = :status', { status: status || ClientRequestStatus.NEW })
+      .where('clientRequest.cfoId = :userId', { userId: cfoProfile.id })
+      .andWhere('clientRequest.status = :status', {
+        status: status || ClientRequestStatus.NEW,
+      })
       .getManyAndCount();
 
     const meta = {
-        total,
-        page,
-        limit: take,
+      total,
+      page,
+      limit: take,
     };
 
-    return SendResponse.success({ items, meta }, 'Engagement requests fetched successfully');
+    return SendResponse.success(
+      { items, meta },
+      'Engagement requests fetched successfully',
+    );
   }
-
 
   // helper methods
   async isCfoOnboarded(cfo: CFOProfile): Promise<boolean> {
     // return await this.userRepo.update({ id }, { isOnboarded: true });
-    if (cfo.firstName && cfo.lastName && cfo.certifications && cfo.education
-      && cfo.expertiseAreas && cfo.industries
-      && cfo.companySize && cfo.yearsOfExperience && cfo.rateExpectation && cfo.availabilityType
-      && cfo.engagementLength && cfo.preferredEngagementModel) {
+    if (
+      cfo.firstName &&
+      cfo.lastName &&
+      cfo.certifications &&
+      cfo.education &&
+      cfo.expertiseAreas &&
+      cfo.industries &&
+      cfo.companySize &&
+      cfo.yearsOfExperience &&
+      cfo.rateExpectation &&
+      cfo.availabilityType &&
+      cfo.engagementLength &&
+      cfo.preferredEngagementModel
+    ) {
       return true;
     }
     return false;
@@ -153,25 +202,31 @@ export class UsersService {
     if (!user) throw new NotFoundException('Account not found');
     return user;
   }
-  async updateVerificationStatus(email: string, updateUserDto: { isVerified: boolean }) {
+  async updateVerificationStatus(
+    email: string,
+    updateUserDto: { isVerified: boolean },
+  ) {
     return await this.userRepo.update({ email }, updateUserDto);
   }
 
   async findUserByEmail(email: string, role: 'sme' | 'cfo' | null = null) {
     let user;
-    if (role){
+    if (role) {
       user = await this.userRepo.findOne({
         where: { email },
-        relations: [role]
+        relations: [role],
       });
     } else {
-      user = await this.userRepo.findOne({where: { email }});
+      user = await this.userRepo.findOne({ where: { email } });
     }
     return user;
   }
 
   async findUserById(id: string) {
-    const user = await this.userRepo.findOne({ where: { id }, relations: ['cfo'] });
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: ['cfo'],
+    });
     return user;
   }
 }
