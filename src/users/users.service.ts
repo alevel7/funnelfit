@@ -17,7 +17,7 @@ import { ClientRequest } from 'src/entities/client-request.entity';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
 import {
-  EngagementRequestAcceptRejectDto,
+  ClientRequestUpdateDto,
   ScheduleMeetingDto,
 } from './dto/engagment-requests.dto';
 
@@ -30,7 +30,7 @@ export class UsersService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(ClientRequest)
     private readonly clientRequestRepo: Repository<ClientRequest>,
-  ) {}
+  ) { }
 
   async create(createUserDto: RegisterDto) {
     const { email, password, phoneNumber, role } = createUserDto;
@@ -47,12 +47,18 @@ export class UsersService {
     return result;
   }
 
-  async scheduleMeeting(body: ScheduleMeetingDto, user: LoggedInUser) {
+  async scheduleMeeting(clientRequestId: string, body: ScheduleMeetingDto, user: LoggedInUser) {
+    const cfoProfile = await this.cfoRepo.findOne({
+      where: { user: { id: user.id } },
+    });
+    if (!cfoProfile) {
+      throw new UnauthorizedException('CFO profile not found');
+    }
     // find the client request by cfo id
     const clientRequest = await this.clientRequestRepo.findOne({
       where: {
-        id: body.clientRequestId,
-        cfo: { id: user.id },
+        id: clientRequestId,
+        cfoId: cfoProfile.id,
       },
     });
     if (!clientRequest) {
@@ -93,6 +99,7 @@ export class UsersService {
     if (user) {
       // mark user as onboarded if all profile fields are filled
       const isOnboarded = await this.isCfoOnboarded(user);
+      console.log('isOnboarded', isOnboarded);
       // if isOnboarded is true, update the isOnboarded field in the users table
       if (isOnboarded) {
         await this.userRepo.update({ id }, { isOnboarded: true });
@@ -112,20 +119,30 @@ export class UsersService {
   }
   async updateEngagementRequests(
     id: string,
-    body: EngagementRequestAcceptRejectDto,
+    body: ClientRequestUpdateDto,
     user: LoggedInUser,
   ) {
+    const cfoProfile = await this.cfoRepo.findOne({
+      where: { user: { id: user.id } },
+    });
+    if (!cfoProfile) {
+      throw new UnauthorizedException('CFO profile not found');
+    }
+    // find the client request by cfo id
     const clientRequest = await this.clientRequestRepo.findOne({
-      where: { id, cfo: { id: user.id } },
+      where: { id, cfoId: cfoProfile.id },
     });
     if (!clientRequest) {
       throw new NotFoundException('Engagement request not found');
     }
-    if (body.accept) {
-      clientRequest.status = ClientRequestStatus.ACCEPTED;
-    } else {
-      clientRequest.status = ClientRequestStatus.DECLINED;
-    }
+    clientRequest.status = body.status || clientRequest.status;
+    clientRequest.rejectionReason = body.rejectionReason || clientRequest.rejectionReason;
+    clientRequest.scheduledMeetDate = body.scheduledMeetDate || clientRequest.scheduledMeetDate;
+    clientRequest.meetingDurationInMinutes = body.meetingDurationInMinutes || clientRequest.meetingDurationInMinutes;
+    clientRequest.meetingMode = body.meetingMode || clientRequest.meetingMode;
+    clientRequest.isRequestAccepted = body.isRequestAccepted || clientRequest.isRequestAccepted;
+    clientRequest.isMeetingCompleted = body.isMeetingCompleted || clientRequest.isMeetingCompleted;
+
     await this.clientRequestRepo.save(clientRequest);
     return SendResponse.success(
       clientRequest,
@@ -149,20 +166,45 @@ export class UsersService {
       throw new UnauthorizedException('CFO profile not found');
     }
 
-    // Fetch ClientRequest rows, including the related CfoRequest and the SMEProfile (via request.sme)
-    const [items, total] = await this.clientRequestRepo
+    /*
+    if the status is new, the return all records whose status is new and also records whose status is scheduled 
+    and isMeetingCompleted is true.
+    if the status is scheduled, return all records whose status is scheduled and isMeetingCompleted is false.
+    */
+
+    let queryBuilder = this.clientRequestRepo
       .createQueryBuilder('clientRequest')
       .leftJoinAndSelect('clientRequest.request', 'request') // include CfoRequest
       .leftJoinAndSelect('request.sme', 'sme') // include SMEProfile for each CfoRequest
-      // .leftJoinAndSelect('clientRequest.cfo', 'cfoProfile')        // include the CFOProfile assigned on ClientRequest (optional)
       .orderBy('clientRequest.createdAt', 'DESC')
       .skip(skip)
       .take(take)
-      .where('clientRequest.cfoId = :userId', { userId: cfoProfile.id })
-      .andWhere('clientRequest.status = :status', {
+      .where('clientRequest.cfoId = :userId', { userId: cfoProfile.id });
+
+    if (status === ClientRequestStatus.NEW) {
+      queryBuilder = queryBuilder.andWhere(
+        '(clientRequest.status = :newStatus OR (clientRequest.status = :scheduledStatus AND clientRequest.isMeetingCompleted = :completed))',
+        {
+          newStatus: ClientRequestStatus.NEW,
+          scheduledStatus: ClientRequestStatus.SCHEDULED,
+          completed: true
+        }
+      );
+    } else if (status === ClientRequestStatus.SCHEDULED) {
+      queryBuilder = queryBuilder.andWhere(
+        'clientRequest.status = :scheduledStatus AND clientRequest.isMeetingCompleted = :notCompleted',
+        {
+          scheduledStatus: ClientRequestStatus.SCHEDULED,
+          notCompleted: false
+        }
+      );
+    } else {
+      queryBuilder = queryBuilder.andWhere('clientRequest.status = :status', {
         status: status || ClientRequestStatus.NEW,
-      })
-      .getManyAndCount();
+      });
+    }
+
+    const [items, total] = await queryBuilder.getManyAndCount();
 
     const meta = {
       total,

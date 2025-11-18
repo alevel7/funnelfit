@@ -28,9 +28,12 @@ export class ClientRequest {
   })
   public cfo: CFOProfile;
 
+  @Column()
+  cfoId: string;
+
   // add a datetime field to track date and time for meeting
   @Column({ type: 'timestamp', nullable: true })
-  scheduledMeetDate: Date;
+  scheduledMeetDate: string;
 
   // add integer column to track duration of meeting in minutes
   @Column({ type: 'int', nullable: true, default: null })
@@ -51,6 +54,10 @@ export class ClientRequest {
   // add a boolean field
   @Column({ type: 'boolean', default: false })
   isMeetingCompleted: boolean;
+
+  // reason for rejection
+  @Column({ type: 'text', nullable: true })
+  rejectionReason: string;
 
   @Column({
     type: 'enum',

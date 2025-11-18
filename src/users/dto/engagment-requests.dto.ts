@@ -6,17 +6,49 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  ValidateIf,
 } from 'class-validator';
 import { MeetingMode } from 'src/common/enums/cfo-request.enum';
+import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
+export class ClientRequestUpdateDto {
 
-export class EngagementRequestAcceptRejectDto {
+  @IsOptional()
+  @IsDateString()
+  scheduledMeetDate: string;
+
+  @IsOptional()
+  @IsInt()
+  meetingDurationInMinutes: number;
+
+  @IsOptional()
   @IsBoolean()
-  accept: boolean;
+  isMeetingCompleted: boolean;
+
+  @IsOptional()
+  @IsString()
+  additionalNotes: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isRequestAccepted: boolean;
+
+  @IsOptional()
+  @IsEnum(MeetingMode)
+  meetingMode: MeetingMode;
+
+  @IsOptional()
+  @IsEnum(ClientRequestStatus)
+  status: ClientRequestStatus
+
+  @IsString()
+  @IsOptional()
+  @ValidateIf((o) => o.status === ClientRequestStatus.DECLINED)
+  rejectionReason: string;
 }
 
 export class ScheduleMeetingDto {
   @IsDateString()
-  scheduledMeetDate: Date;
+  scheduledMeetDate: string;
 
   @IsInt()
   meetingDurationInMinutes: number;
@@ -27,7 +59,4 @@ export class ScheduleMeetingDto {
   @IsOptional()
   @IsString()
   additionalNotes?: string;
-
-  @IsUUID()
-  clientRequestId: string;
 }

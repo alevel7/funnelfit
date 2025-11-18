@@ -24,7 +24,7 @@ import { UserRole } from 'src/common/enums/user.enum';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
 import {
-  EngagementRequestAcceptRejectDto,
+  ClientRequestUpdateDto,
   ScheduleMeetingDto,
 } from './dto/engagment-requests.dto';
 
@@ -49,22 +49,23 @@ export class UsersController {
     const user: LoggedInUser = req.user;
     return this.usersService.getEngagementRequests(page, limit, status, user);
   }
+
   @UseGuards(CfoGuard)
-  @Post('engagement-requests/call-schedule')
+  @Post('engagement-requests/:id/schedule-meeting')
   scheduleMeeting(
     @Param('id') id: string,
     @Body() body: ScheduleMeetingDto,
     @Request() req: any,
   ) {
     const user: LoggedInUser = req.user;
-    return this.usersService.scheduleMeeting(body, user);
+    return this.usersService.scheduleMeeting(id, body, user);
   }
 
   @UseGuards(CfoGuard)
   @Put('engagement-requests/:id')
   updateEngagementRequests(
     @Param('id') id: string,
-    @Body() body: EngagementRequestAcceptRejectDto,
+    @Body() body: ClientRequestUpdateDto,
     @Request() req: any,
   ) {
     const user: LoggedInUser = req.user;
