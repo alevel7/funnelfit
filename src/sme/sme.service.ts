@@ -20,6 +20,8 @@ import {
   urgencySimilarity,
 } from './helper/partial-match.config';
 import * as crypto from 'crypto';
+import { ClientRequest } from 'src/entities/client-request.entity';
+import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
 
 @Injectable()
 export class SmeService {
@@ -29,6 +31,8 @@ export class SmeService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(CFOProfile)
     private readonly cfoRepo: Repository<CFOProfile>,
+    @InjectRepository(ClientRequest)
+    private readonly clientRequestRepo: Repository<ClientRequest>,
     @InjectRepository(CfoRequest)
     private readonly cfoRequestRepo: Repository<CfoRequest>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -73,40 +77,7 @@ export class SmeService {
       return SendResponse.success(response, 'CFO Profile created successfully');
     }
   }
-  private async isSmeOnboarded(sme: SMEProfile): Promise<boolean> {
-    const isCompanyInfoComplete =
-      !!sme?.companyinfo?.address &&
-      !!sme?.companyinfo?.city &&
-      !!sme?.companyinfo?.country &&
-      !!sme?.companyinfo?.companyName &&
-      !!sme?.companyinfo?.industry &&
-      !!sme?.companyinfo?.postalCode &&
-      !!sme?.companyinfo?.state;
 
-    const isFinancialInfoComplete = sme?.financialGoal?.length > 0;
-
-    const isCommunicationPreferenceComplete =
-      sme?.communicationPreferences?.length > 0;
-
-    const isAreaOfNeedComplete = sme?.areaOfNeed?.length > 0;
-
-    const isContactInfoComplete =
-      !!sme?.contactPerson?.firstName &&
-      !!sme?.contactPerson?.lastName &&
-      !!sme?.contactPerson?.jobTitle &&
-      !!sme?.contactPerson?.phoneNumber;
-
-    if (
-      isCompanyInfoComplete &&
-      isFinancialInfoComplete &&
-      isCommunicationPreferenceComplete &&
-      isAreaOfNeedComplete &&
-      isContactInfoComplete
-    ) {
-      return true;
-    }
-    return false;
-  }
 
   async getCFORequests(smeId: string, page = 1, limit = 10) {
     const smeProfile = await this.smeRepo.findOne({
@@ -248,14 +219,6 @@ export class SmeService {
       'Request sent to CFO successfully',
     );
   }
-
-  // --- Helper: create unique cache key for payload ---
-  private getCacheKey(dto: CfoRequestDto): string {
-    const str = JSON.stringify(dto);
-    const hash = crypto.createHash('sha256').update(str).digest('hex');
-    return `search:${hash}`;
-  }
-
   async requestCFO(
     data: CfoRequestDto,
     user: LoggedInUser,
@@ -340,6 +303,72 @@ export class SmeService {
     );
   }
 
+  async getEngagements(sme: LoggedInUser) {
+    const smeProfile = await this.smeRepo.findOne({
+      where: { user: { id: sme.id } },
+    });
+    if (!smeProfile) {
+      throw new NotFoundException('SME Profile not found');
+    }
+    // fetch all client requests where the request.sme.id = smeProfile.id and isMeetingCompleted is true
+    const clientRequestRepo =
+      this.cfoRequestRepo.manager.getRepository('ClientRequest');
+    const engagements = await clientRequestRepo.find({
+      where: {
+        request: { sme: { id: smeProfile.id } },
+        isMeetingCompleted: true,
+        status: ClientRequestStatus.ACCEPTED
+      },
+      relations: ['cfo', 'request'],
+      order: { updatedAt: 'DESC' },
+    });
+    return SendResponse.success(
+      engagements,
+      'Engagements retrieved successfully',
+    );
+  }
+
+  // --- Helper: create unique cache key for payload ---
+  private async isSmeOnboarded(sme: SMEProfile): Promise<boolean> {
+    const isCompanyInfoComplete =
+      !!sme?.companyinfo?.address &&
+      !!sme?.companyinfo?.city &&
+      !!sme?.companyinfo?.country &&
+      !!sme?.companyinfo?.companyName &&
+      !!sme?.companyinfo?.industry &&
+      !!sme?.companyinfo?.postalCode &&
+      !!sme?.companyinfo?.state;
+
+    const isFinancialInfoComplete = sme?.financialGoal?.length > 0;
+
+    const isCommunicationPreferenceComplete =
+      sme?.communicationPreferences?.length > 0;
+
+    const isAreaOfNeedComplete = sme?.areaOfNeed?.length > 0;
+
+    const isContactInfoComplete =
+      !!sme?.contactPerson?.firstName &&
+      !!sme?.contactPerson?.lastName &&
+      !!sme?.contactPerson?.jobTitle &&
+      !!sme?.contactPerson?.phoneNumber;
+
+    if (
+      isCompanyInfoComplete &&
+      isFinancialInfoComplete &&
+      isCommunicationPreferenceComplete &&
+      isAreaOfNeedComplete &&
+      isContactInfoComplete
+    ) {
+      return true;
+    }
+    return false;
+  }
+  private getCacheKey(dto: CfoRequestDto): string {
+    const str = JSON.stringify(dto);
+    const hash = crypto.createHash('sha256').update(str).digest('hex');
+    return `search:${hash}`;
+  }
+
   // Compute weighted score (same as before)
   private computeMatchScore(cfo: CFOProfile, dto: CfoRequestDto): number {
     const weights = {
@@ -407,4 +436,6 @@ export class SmeService {
     }
     return 0;
   }
+
+
 }

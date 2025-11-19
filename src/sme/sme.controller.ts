@@ -19,7 +19,7 @@ import { ClientRequestDto } from './dto/cfoRequest.dto';
 
 @Controller('sme')
 export class SmeController {
-  constructor(private smeService: SmeService) {}
+  constructor(private smeService: SmeService) { }
 
   @Patch('profile')
   @UseGuards(SMEGuard)
@@ -75,13 +75,22 @@ export class SmeController {
     return this.smeService.sendRequestToCfo(requestId, body);
   }
 
-    @Get('cfo-requests/:requestId/selected-cfo')
-    @UseGuards(SMEGuard)
-    async getAllRequestSelectedCfo(
-        @Request() req: any,
-        @Param('requestId') requestId: string,
-    ) {
-        const sme: LoggedInUser = req.user;
-        return this.smeService.getAllRequestSelectedCfo(requestId, sme);
-    }
+  @Get('cfo-requests/:requestId/selected-cfo')
+  @UseGuards(SMEGuard)
+  async getAllRequestSelectedCfo(
+    @Request() req: any,
+    @Param('requestId') requestId: string,
+  ) {
+    const sme: LoggedInUser = req.user;
+    return this.smeService.getAllRequestSelectedCfo(requestId, sme);
+  }
+
+  @Get('engagements')
+  @UseGuards(SMEGuard)
+  async getEngagements(
+    @Request() req: any,
+  ) {
+    const sme: LoggedInUser = req.user;
+    return this.smeService.getEngagements(sme);
+  }
 }
