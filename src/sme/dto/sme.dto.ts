@@ -167,34 +167,3 @@ export class UpdateCompanyDto {
   @IsArray()
   communicationPreferences?: ('email' | 'phone' | 'call' | 'in-person')[];
 }
-
-class FinancialChallenge {
-  @IsOptional()
-  @IsString()
-  name: string;
-
-  @IsOptional()
-  @IsString()
-  code: string;
-}
-
-export class CfoRequestDto {
-  @ValidateNested()
-  @Type(() => FinancialChallenge)
-  financialChallenge: FinancialChallenge;
-
-  @IsEnum(CfoUrgencyLevel)
-  urgencyLevel: CfoUrgencyLevel;
-
-  @IsEnum(EngagementLength)
-  engagementLength: EngagementLength;
-
-  @IsEnum(EngagementModel)
-  serviceType: EngagementModel;
-
-  @IsEnum(companySizeExperience)
-  cfoExperience: companySizeExperience;
-
-  @IsOptional()
-  otherRequirements: string;
-}

@@ -29,8 +29,8 @@ export class CfoRequest {
   @Column({ type: 'enum', enum: CfoUrgencyLevel })
   urgencyLevel: CfoUrgencyLevel;
 
-  @IsString()
-  engagementTime: string;
+  @Column({type: 'varchar', length: 255, nullable: true})
+  projectName: string;
 
   @Column({ type: 'enum', enum: EngagementModel })
   serviceType: EngagementModel;

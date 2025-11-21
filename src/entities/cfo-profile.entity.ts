@@ -15,6 +15,7 @@ import {
   EngagementModel,
 } from 'src/common/enums/user.enum';
 import { ClientRequest } from './client-request.entity';
+import { Task } from './task.entity';
 
 @Entity('cfo_profiles')
 export class CFOProfile {
@@ -84,6 +85,9 @@ export class CFOProfile {
   // tracks all client requests made to this CFO
   @OneToMany(() => ClientRequest, (clientRequests) => clientRequests.cfo)
   public clientRequests: ClientRequest[];
+
+  @OneToMany(() => Task, (tasks) => tasks.cfo)
+  public tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;

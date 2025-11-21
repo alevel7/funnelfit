@@ -11,6 +11,7 @@ import {
 import { User } from './user.entity';
 import { EngagementModel } from 'src/common/enums/user.enum';
 import { CfoRequest } from './cfo-request.entity';
+import { Task } from './task.entity';
 
 type communicationOptions = 'email' | 'phone' | 'call' | 'in-person';
 
@@ -73,6 +74,9 @@ export class SMEProfile {
   // tracks sme initial cfo requests criteria
   @OneToMany(() => CfoRequest, (requests) => requests.sme)
   cfoRequests: CfoRequest[];
+
+  @OneToMany(() => Task, (requests) => requests.sme)
+  tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;

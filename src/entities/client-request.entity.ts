@@ -5,6 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { CfoRequest } from './cfo-request.entity';
 import { CFOProfile } from './cfo-profile.entity';
@@ -12,6 +13,7 @@ import {
   ClientRequestStatus,
   MeetingMode,
 } from 'src/common/enums/cfo-request.enum';
+import { Task } from './task.entity';
 
 @Entity('clientRequests')
 export class ClientRequest {
@@ -27,6 +29,10 @@ export class ClientRequest {
     onDelete: 'CASCADE',
   })
   public cfo: CFOProfile;
+
+  @OneToMany(() => Task, (tasks) => tasks.request)
+  public tasks: Task[];
+  
 
   @Column()
   cfoId: string;

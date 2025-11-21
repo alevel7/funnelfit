@@ -24,6 +24,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { SeedModule } from './seed/seed.module';
 import { name } from 'ejs';
+import { ServiceController } from './service/service.controller';
 // import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -73,7 +74,7 @@ import { name } from 'ejs';
     SmeModule,
     SeedModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ServiceController],
   providers: [AppService],
 })
 export class AppModule {}

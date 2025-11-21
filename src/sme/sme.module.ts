@@ -8,6 +8,7 @@ import { CFOProfile } from 'src/entities/cfo-profile.entity';
 import { CfoRequest } from 'src/entities/cfo-request.entity';
 import { ClientRequest } from 'src/entities/client-request.entity';
 import { MessagingModule } from 'src/messaging/messaging.module';
+import { Task } from 'src/entities/task.entity';
 
 @Module({
   providers: [SmeService],
@@ -19,6 +20,7 @@ import { MessagingModule } from 'src/messaging/messaging.module';
       CFOProfile,
       CfoRequest,
       ClientRequest,
+      Task
     ]),
     MessagingModule,
   ],
