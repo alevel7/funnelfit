@@ -120,13 +120,18 @@ export class SmeService {
       .innerJoin('cfoRequest.sme', 'smeProfile')
       .innerJoinAndSelect('clientRequest.cfo', 'cfoProfile')
       .where('smeProfile.id = :smeProfileId', { smeProfileId: smeProfile.id })
+      .select(['clientRequest.id', 'cfoProfile.id', 'cfoProfile.firstName', 'cfoProfile.lastName'])
       .getMany();
 
     // Collect distinct CFOs from client requests
-    const distinctCfosMap = new Map<string, CFOProfile>();
+    const distinctCfosMap = new Map<string, any>();
     clientRequests.forEach((request) => {
       if (request.cfo) {
-        distinctCfosMap.set(request.cfo.id, request.cfo);
+        distinctCfosMap.set(request.cfo.id, {
+          id: request.cfo.id,
+          firstName: request.cfo.firstName,
+          lastName: request.cfo.lastName
+        });
       }
     });
     const distinctCfos = Array.from(distinctCfosMap.values());
@@ -134,6 +139,47 @@ export class SmeService {
     return SendResponse.success(
       distinctCfos,
       'CFOs associated with SME retrieved successfully',
+    );
+  }
+  async getSmeCfosWithTaskCount(smeId: string) {
+    // Find SME profile by user ID
+    const smeProfile = await this.smeRepo.findOne({ where: { user: { id: smeId } } });
+    if (!smeProfile) {
+      throw new NotFoundException('SME Profile not found');
+    }
+    // Query client requests with CFO profiles and task counts
+      const result = await this.clientRequestRepo
+        .createQueryBuilder('cr')
+        .innerJoin('cr.request', 'cfor')
+        .innerJoin('cr.cfo', 'cfo')
+        .leftJoin('cr.tasks', 't')
+        .select('cfo.id', 'id')
+        .addSelect('cfo.firstName', 'firstName')
+        .addSelect('cfo.lastName', 'lastName')
+        .addSelect('COUNT(t.id)', 'total_tasks')
+        .where('cfor.smeId = :smeProfileId', { smeProfileId: smeProfile.id })
+        .andWhere('t.status NOT IN (:...excludedStatuses)', { excludedStatuses: ['TODO', 'BLOCKED', 'COMPLETED'] })
+        .groupBy('cfo.id')
+        .addGroupBy('cfo.firstName')
+        .addGroupBy('cfo.lastName')
+        .getRawMany();
+
+      // Transform the result into a Map to ensure distinct CFOs
+      const distinctCfosMap = new Map<string, any>();
+      result.forEach((row) => {
+        distinctCfosMap.set(row.id, {
+        id: row.id,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        totalTasks: parseInt(row.total_tasks) || 0
+        });
+      });
+    
+    const distinctCfos = Array.from(distinctCfosMap.values());
+
+    return SendResponse.success(
+      distinctCfos,
+      'CFOs associated with SME with active task counts retrieved successfully',
     );
   }
 }

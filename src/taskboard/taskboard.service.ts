@@ -193,4 +193,36 @@ export class TaskboardService {
             .getMany();
         return SendResponse.success(tasks, 'CFO tasks fetched successfully');
     }
+
+    async getSmeTaskStatistic(user: LoggedInUser) {
+        const raw = await this.taskRepo
+            .createQueryBuilder('t')
+            .select('COUNT(*)', 'total')
+            .addSelect("COUNT(*) FILTER (WHERE t.status = :completed)", 'completed')
+            .addSelect("COUNT(*) FILTER (WHERE t.status = :pending)", 'pending')
+            .addSelect(
+                "COUNT(*) FILTER (WHERE t.status NOT IN (:...excluded))",
+                'active',
+            )
+            .setParameters({
+                completed: TaskStatus.COMPLETED,
+                pending: TaskStatus.TODO,
+                excluded: [
+                    TaskStatus.TODO,
+                    TaskStatus.COMPLETED,
+                    TaskStatus.BLOCKED,
+                ],
+            })
+            .getRawOne();
+
+        const response =  {
+            total: Number(raw.total),
+            completed: Number(raw.completed),
+            pending: Number(raw.pending),
+            active: Number(raw.active),
+        };
+
+        return SendResponse.success(response, 'tasks fetched successfully');
+        
+    }
 }

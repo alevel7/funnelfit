@@ -43,6 +43,15 @@ export class TaskboardController {
         return this.taskboardService.getSMETasks(user, page, limit, status, cfoId, search);
     }
 
+    @Get("/sme-tasks-statistics")
+    @UseGuards(SMEGuard)
+    async getSmeTaskStatistic(
+        @Request() req: any,
+    ) {
+        const user: LoggedInUser = req.user;
+        return this.taskboardService.getSmeTaskStatistic(user);
+    }
+
     @Get("/cfo-tasks")
     @UseGuards(CfoGuard)
     async getCFOTasks(@Request() req: any,) {

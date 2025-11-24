@@ -35,4 +35,10 @@ export class SmeController {
     const user: LoggedInUser = req.user;
     return this.smeService.getSmeCfos(user.id);
   }
+  @Get('cfos-stats')
+  @UseGuards(SMEGuard)
+  async getSmeCfosWithTaskCount(@Request() req: any) {
+    const user: LoggedInUser = req.user;
+    return this.smeService.getSmeCfosWithTaskCount(user.id);
+  }
 }
