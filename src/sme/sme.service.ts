@@ -108,26 +108,26 @@ export class SmeService {
   }
 
   async getSmeCfos(smeId: string) {
-    const smeProfile = await this.smeRepo.findOne({
-      where: { user: { id: smeId } },
-    });
+    // Find SME profile by user ID
+    const smeProfile = await this.smeRepo.findOne({ where: { user: { id: smeId } } });
     if (!smeProfile) {
       throw new NotFoundException('SME Profile not found');
     }
-    // distinctly fetch all cfos from client requests where the request.sme.id = smeProfile.id
-    const clientRequests = await this.clientRequestRepo.find({
-      where: { sme: { id: smeProfile.id }, status: ClientRequestStatus.ACCEPTED },
-      relations: ['cfo'],
-      select: { 
-        cfo: { 
-          id: true, 
-          firstName: true, 
-          lastName: true, 
-        } },
-    });
+
+    // Query client requests, join to cfoRequest, sme profile, and cfo profile
+    const clientRequests = await this.clientRequestRepo.createQueryBuilder('clientRequest')
+      .innerJoinAndSelect('clientRequest.request', 'cfoRequest')
+      .innerJoin('cfoRequest.sme', 'smeProfile')
+      .innerJoinAndSelect('clientRequest.cfo', 'cfoProfile')
+      .where('smeProfile.id = :smeProfileId', { smeProfileId: smeProfile.id })
+      .getMany();
+
+    // Collect distinct CFOs from client requests
     const distinctCfosMap = new Map<string, CFOProfile>();
     clientRequests.forEach((request) => {
-      distinctCfosMap.set(request.cfo.id, request.cfo);
+      if (request.cfo) {
+        distinctCfosMap.set(request.cfo.id, request.cfo);
+      }
     });
     const distinctCfos = Array.from(distinctCfosMap.values());
 

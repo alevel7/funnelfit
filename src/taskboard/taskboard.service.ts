@@ -39,8 +39,6 @@ export class TaskboardService {
         }
         let task = this.taskRepo.create({
             request:request,
-            cfo:{id:request.cfoId},
-            sme:{id:sme.id},
             title:data.title,
             description:data.description,
             taskType:data.taskType,
@@ -50,6 +48,8 @@ export class TaskboardService {
             expectedOutcome:data.expectedOutcome,
             budget:data.budget,
             tags:data.tags,
+            stakeHolders: data.stakeHolders,
+            estimatedHours: data.estimatedHours
         });
         await this.taskRepo.save(task);
 
@@ -74,82 +74,91 @@ export class TaskboardService {
     async getTaskById(id:string) {
         const task = await this.taskRepo.findOne({
             where:{id:id},
-            relations:['cfo','request'],
+            relations:['request', 'request.cfo'],
             select:{
-                cfo:{
-                    id: true, firstName: true, lastName: true,
-                },
                 request:{
                     scheduledMeetDate:true, 
                     meetingDurationInMinutes:true, 
                     meetingMode:true, 
-                    // isRequestAccepted:true,
                     additionalNotes:true,
                     isMeetingCompleted: true,
                     rejectionReason: true,
-                    status: true
+                    status: true,
+                    id:true,
+                    cfo: {
+                        id: true,
+                        firstName: true,
+                        lastName: true
+                    }
                 }
             }
         });
         return task;
     }
 
-    async getSMETasks(user: LoggedInUser, page:number=1, limit:number=10, status:TaskStatus | null=null, cfoId:string | null=null, search:string | null=null){
+    async getSMETasks(
+        user: LoggedInUser,
+        page: number = 1,
+        limit: number = 10,
+        status: TaskStatus | null = null,
+        cfoId: string | null = null,
+        search: string | null = null
+    ) {
         // get SME profile
-        const sme = await this.smeRepo.findOne({where:{user:{id:user.id}}});
-        if(!sme){
+        const sme = await this.smeRepo.findOne({ where: { user: { id: user.id } } });
+        if (!sme) {
             throw new NotFoundException('SME profile not found');
         }
 
         // validate that the cfoId is valid
-        if(cfoId){
-            const cfo = await this.cfoRepo.findOne({where:{id:cfoId}});
-            if(!cfo){
+        if (cfoId) {
+            const cfo = await this.cfoRepo.findOne({ where: { id: cfoId } });
+            if (!cfo) {
                 throw new NotFoundException('Invalid CFO ID');
             }
         }
 
-        
-        // build where condition
-        const whereCondition: any = {sme:{id:sme.id}};
-        if(status){
-            whereCondition.status = status;
+        // Build query using QueryBuilder for richer joins
+        const qb = this.taskRepo.createQueryBuilder('task')
+            .leftJoinAndSelect('task.request', 'clientRequest')
+            .leftJoinAndSelect('clientRequest.cfo', 'cfo')
+            .leftJoinAndSelect('clientRequest.request', 'cfoRequest')
+            .where('cfoRequest.sme = :smeId', { smeId: sme.id });
+
+        if (status) {
+            qb.andWhere('task.status = :status', { status });
         }
         if (cfoId) {
-            whereCondition.cfo = { id: cfoId };
+            qb.andWhere('cfo.id = :cfoId', { cfoId });
+        }
+        if (search) {
+            qb.andWhere('task.title ILIKE :search', { search: `%${search}%` });
         }
 
-        // search by title
-        if (search) {
-            whereCondition.title = ILike(`%${search}%`);
-        }
-        
-        // fetch all tasks created by this sme with pagination
-        const [tasks, total] = await this.taskRepo.findAndCount({
-            where: whereCondition,
-            relations:['cfo','request'],
-            // order: { createdAt: 'DESC' },
-            select:{
-                cfo:{
-                    id: true, firstName: true, lastName: true,
-                },
-                request:{
-                    scheduledMeetDate:true, 
-                    meetingDurationInMinutes:true, 
-                    meetingMode:true, 
-                    // isRequestAccepted:true,
-                    additionalNotes:true,
-                    isMeetingCompleted: true,
-                    rejectionReason: true,
-                    status: true
-                }
-            },
-            skip: (page - 1) * limit,
-            take: limit
-        });
-        
+        qb.orderBy('task.createdAt', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        // Select fields for task, request, and cfo
+        qb.select([
+            'task',
+            'clientRequest.id',
+            'clientRequest.scheduledMeetDate',
+            'clientRequest.meetingDurationInMinutes',
+            'clientRequest.meetingMode',
+            'clientRequest.additionalNotes',
+            'clientRequest.isMeetingCompleted',
+            'clientRequest.rejectionReason',
+            'clientRequest.status',
+            'cfo.id',
+            'cfo.firstName',
+            'cfo.lastName'
+        ]);
+
+        const [tasks, total] = await qb.getManyAndCount();
+
         const totalPages = Math.ceil(total / limit);
-        
+
         return SendResponse.success({
             tasks,
             meta: {
@@ -160,28 +169,28 @@ export class TaskboardService {
             }
         }, 'SME tasks fetched successfully');
     }
-
     async getCFOTasks(user: LoggedInUser){
-        // fetch all tasks assigned to this cfo
-        const tasks = await this.taskRepo.find({
-            where:{cfo:{user:{id:user.id}}},
-            relations:['sme','request'],
-            select:{
-                sme:{
-                    id: true, companyinfo: true, user: true,
-                },
-                request:{
-                    scheduledMeetDate:true, 
-                    meetingDurationInMinutes:true, 
-                    meetingMode:true, 
-                    // isRequestAccepted:true,
-                    additionalNotes:true,
-                    isMeetingCompleted: true,
-                    rejectionReason: true,
-                    status: true
-                }
-            }
-        });
+        // fetch all tasks belonging to the CFO by their user ID
+        const tasks = await this.taskRepo
+            .createQueryBuilder('task')
+            // .leftJoinAndSelect('task.sme', 'sme')
+            .leftJoinAndSelect('task.request', 'request')
+            .leftJoinAndSelect('request.cfo', 'cfo')
+            // .leftJoinAndSelect('cfo.user', 'cfoUser')
+            .where('cfo.id = :userId', { userId: user.id })
+            .select([
+                'task',
+                'sme.id', 'sme.companyinfo', 'sme.user',
+                'request.scheduledMeetDate',
+                'request.meetingDurationInMinutes',
+                'request.meetingMode',
+                'request.additionalNotes',
+                'request.isMeetingCompleted',
+                'request.rejectionReason',
+                'request.status',
+                'cfo.id', 'cfo.firstName', 'cfo.lastName'
+            ])
+            .getMany();
         return SendResponse.success(tasks, 'CFO tasks fetched successfully');
     }
 }

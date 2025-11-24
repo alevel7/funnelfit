@@ -86,8 +86,8 @@ export class CFOProfile {
   @OneToMany(() => ClientRequest, (clientRequests) => clientRequests.cfo)
   public clientRequests: ClientRequest[];
 
-  @OneToMany(() => Task, (tasks) => tasks.cfo)
-  public tasks: Task[];
+  // @OneToMany(() => Task, (tasks) => tasks.cfo)
+  // public tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;

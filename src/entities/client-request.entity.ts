@@ -31,10 +31,6 @@ export class ClientRequest {
   })
   public cfo: CFOProfile;
 
-  @ManyToOne(() => SMEProfile, (cfo) => cfo.clientRequests, {
-    onDelete: 'CASCADE',
-  })
-  public sme: SMEProfile;
 
   @OneToMany(() => Task, (tasks) => tasks.request)
   public tasks: Task[];
@@ -54,10 +50,6 @@ export class ClientRequest {
   // add an enum field to track mode of meeting: IN_PERSONN or PHONE_CALL or VIDEO_CALL
   @Column({ type: 'enum', enum: MeetingMode, nullable: true })
   meetingMode: MeetingMode;
-
-  // add a boolean field
-  // @Column({ type: 'boolean', default: false })
-  // isRequestAccepted: boolean;
 
   // add a string field for optional notes
   @Column({ type: 'text', nullable: true })

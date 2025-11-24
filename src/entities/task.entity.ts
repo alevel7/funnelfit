@@ -22,23 +22,7 @@ export class Task {
     onDelete: 'CASCADE',
   })
   public request: ClientRequest;
-
-  @ManyToOne(() => CFOProfile, (cfo) => cfo.tasks, {
-    onDelete: 'CASCADE',
-  })
-  public cfo: CFOProfile;
-
-  @ManyToOne(() => SMEProfile, (sme) => sme.tasks, {
-    onDelete: 'CASCADE',
-  })
-  public sme: SMEProfile;
-
-  // link task to a project
-  @ManyToOne(() => CfoRequest, (cfoRequest) => cfoRequest.tasks, {
-    onDelete: 'CASCADE',
-  })
-  public project: CfoRequest;
-
+  
   @Column({ type: 'varchar', length: 255 })
   title: string;
 

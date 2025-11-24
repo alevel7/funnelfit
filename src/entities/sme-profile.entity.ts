@@ -76,11 +76,11 @@ export class SMEProfile {
   @OneToMany(() => CfoRequest, (requests) => requests.sme)
   cfoRequests: CfoRequest[];
 
-  @OneToMany(() => ClientRequest, (clientRequest) => clientRequest.sme)
-  clientRequests: ClientRequest[];
+  // @OneToMany(() => ClientRequest, (clientRequest) => clientRequest.sme)
+  // clientRequests: ClientRequest[];
 
-  @OneToMany(() => Task, (requests) => requests.sme)
-  tasks: Task[];
+  // @OneToMany(() => Task, (requests) => requests.sme)
+  // tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;

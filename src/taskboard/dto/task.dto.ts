@@ -1,4 +1,4 @@
-import { IsDateString, IsDecimal, IsEnum, IsInt, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsDateString, IsDecimal, IsEnum, IsInt, IsNumberString, IsOptional, IsString, IsUUID } from "class-validator";
 import { TaskPriority, TaskStatus } from "src/common/enums/task.enum";
 
 export class TaskCreateDto {
@@ -34,7 +34,7 @@ export class TaskCreateDto {
     expectedOutcome: string;
 
     @IsOptional()
-    @IsDecimal()
+    @IsNumberString()
     budget?: number;
 
     @IsOptional()
