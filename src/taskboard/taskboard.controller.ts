@@ -54,9 +54,9 @@ export class TaskboardController {
 
     @Get("/cfo-tasks")
     @UseGuards(CfoGuard)
-    async getCFOTasks(@Request() req: any,) {
+    async getTasks(@Request() req: any,) {
         const user: LoggedInUser = req.user;
-        return this.taskboardService.getCFOTasks(user);
+        return this.taskboardService.getTasks(user);
     }
 
     @Post('/')

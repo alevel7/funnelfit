@@ -13,6 +13,7 @@ import { SendResponse } from 'src/common/utils/responseHandler';
 import { Cache } from 'cache-manager';
 import { TaskStatus } from 'src/common/enums/task.enum';
 import { CFOProfile } from 'src/entities/cfo-profile.entity';
+import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
 
 @Injectable()
 export class TaskboardService {
@@ -169,26 +170,36 @@ export class TaskboardService {
             }
         }, 'SME tasks fetched successfully');
     }
-    async getCFOTasks(user: LoggedInUser){
+    async getTasks(user: LoggedInUser){
+       const cfoProfile = await this.cfoRepo.findOne({where:{user:{id:user.id}}});
+       if(!cfoProfile){
+        throw new NotFoundException('CFO profile not found');
+       }
+        
         // fetch all tasks belonging to the CFO by their user ID
         const tasks = await this.taskRepo
-            .createQueryBuilder('task')
-            // .leftJoinAndSelect('task.sme', 'sme')
-            .leftJoinAndSelect('task.request', 'request')
-            .leftJoinAndSelect('request.cfo', 'cfo')
-            // .leftJoinAndSelect('cfo.user', 'cfoUser')
-            .where('cfo.id = :userId', { userId: user.id })
+            .createQueryBuilder('t')
+            .leftJoinAndSelect('t.request', 'cr')
+            .leftJoinAndSelect('cr.request', 'cfor')
+            .leftJoinAndSelect('cfor.sme', 'sme')
+            .leftJoinAndSelect('cr.cfo', 'cfo')
+            .where('cfo.id = :cfoId', { cfoId: cfoProfile.id })
             .select([
-                'task',
-                'sme.id', 'sme.companyinfo', 'sme.user',
-                'request.scheduledMeetDate',
-                'request.meetingDurationInMinutes',
-                'request.meetingMode',
-                'request.additionalNotes',
-                'request.isMeetingCompleted',
-                'request.rejectionReason',
-                'request.status',
-                'cfo.id', 'cfo.firstName', 'cfo.lastName'
+            't',
+            'cr.id',
+            // 'cr.scheduledMeetDate',
+            // 'cr.meetingDurationInMinutes',
+            // 'cr.meetingMode',
+            // 'cr.additionalNotes',
+            // 'cr.isMeetingCompleted',
+            // 'cr.rejectionReason',
+            'cr.status',
+            'cfor.id',
+            'cfo.id',
+            'cfo.firstName',
+            'cfo.lastName',
+            'sme.id',
+            'sme.companyinfo'
             ])
             .getMany();
         return SendResponse.success(tasks, 'CFO tasks fetched successfully');

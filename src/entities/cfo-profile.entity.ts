@@ -32,8 +32,11 @@ export class CFOProfile {
   @Column({ type: 'varchar', length: 100, nullable: true })
   lastName: string;
 
-  // @Column({ type: 'varchar', length: 20, nullable: true })
-  // phone: string;
+  @Column({ type: 'text',nullable: true })
+  aboutMe: string;
+
+  @Column()
+  role:string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   resumeUrl: string;
