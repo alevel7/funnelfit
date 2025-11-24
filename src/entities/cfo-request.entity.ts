@@ -17,6 +17,7 @@ import { IsString } from 'class-validator';
 import { User } from './user.entity';
 import { ClientRequest } from './client-request.entity';
 import { SMEProfile } from './sme-profile.entity';
+import { Task } from './task.entity';
 
 @Entity('cfoRequests')
 export class CfoRequest {
@@ -49,6 +50,9 @@ export class CfoRequest {
   // tracks which CFOs have been requested for this particular request
   @OneToMany(() => ClientRequest, (clientRequests) => clientRequests.request)
   public cfos: ClientRequest[];
+
+  @OneToMany(() => Task, (task) => task.project)
+  public tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;

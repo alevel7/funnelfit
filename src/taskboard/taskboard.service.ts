@@ -28,7 +28,7 @@ export class TaskboardService {
 
     async createTask(user:LoggedInUser, data: TaskCreateDto){
         // validate that the requestId is valid
-        const request = await this.clientRequestRepo.findOne({where:{id:data.requestId}});
+        const request = await this.clientRequestRepo.findOne({ where: { id: data.clientRequestId }});
         if(!request){
             throw new NotFoundException('Invalid request ID');
         }
@@ -83,7 +83,7 @@ export class TaskboardService {
                     scheduledMeetDate:true, 
                     meetingDurationInMinutes:true, 
                     meetingMode:true, 
-                    isRequestAccepted:true,
+                    // isRequestAccepted:true,
                     additionalNotes:true,
                     isMeetingCompleted: true,
                     rejectionReason: true,
@@ -137,7 +137,7 @@ export class TaskboardService {
                     scheduledMeetDate:true, 
                     meetingDurationInMinutes:true, 
                     meetingMode:true, 
-                    isRequestAccepted:true,
+                    // isRequestAccepted:true,
                     additionalNotes:true,
                     isMeetingCompleted: true,
                     rejectionReason: true,
@@ -174,7 +174,7 @@ export class TaskboardService {
                     scheduledMeetDate:true, 
                     meetingDurationInMinutes:true, 
                     meetingMode:true, 
-                    isRequestAccepted:true,
+                    // isRequestAccepted:true,
                     additionalNotes:true,
                     isMeetingCompleted: true,
                     rejectionReason: true,

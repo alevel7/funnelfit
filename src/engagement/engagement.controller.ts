@@ -45,7 +45,7 @@ export class EngagementController {
         @Body() body: ClientRequestDto,
     ) {
         const user: LoggedInUser = req.user;
-        return this.engagementService.sendRequestToCfo(requestId, body);
+        return this.engagementService.sendRequestToCfo(requestId, body, user);
     }
 
     @Get('cfo-requests/:requestId/selected-cfo')
@@ -65,5 +65,15 @@ export class EngagementController {
     ) {
         const sme: LoggedInUser = req.user;
         return this.engagementService.getEngagements(sme);
+    }
+
+    @Get('/:id')
+    @UseGuards(SMEGuard)
+    async getEngagementByProject(
+        @Request() req: any,
+        @Param('projectId') projectId: string,
+    ) {
+        const sme: LoggedInUser = req.user;
+        return this.engagementService.getEngagementDetail(projectId, sme);
     }
 }

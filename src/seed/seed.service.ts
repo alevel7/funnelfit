@@ -253,7 +253,7 @@ export class SeedService {
               scheduledMeetDate: faker.date.soon().toISOString(),
               meetingDurationInMinutes: faker.datatype.number({ min: 30, max: 120 }),
               meetingMode: faker.helpers.objectValue(MeetingMode),
-              isRequestAccepted: faker.datatype.boolean(),
+              // isRequestAccepted: faker.datatype.boolean(),
               additionalNotes: faker.lorem.sentence(),
               isMeetingCompleted: faker.datatype.boolean(),
               rejectionReason: faker.lorem.sentence(),

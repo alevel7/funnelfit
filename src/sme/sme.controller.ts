@@ -28,4 +28,11 @@ export class SmeController {
     const user: LoggedInUser = req.user;
     return this.smeService.findSMEById(user.id);
   }
+
+  @Get('cfos')
+  @UseGuards(SMEGuard)
+  async getCfos(@Request() req: any) {
+    const user: LoggedInUser = req.user;
+    return this.smeService.getSmeCfos(user.id);
+  }
 }

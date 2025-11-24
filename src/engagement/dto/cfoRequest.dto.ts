@@ -29,9 +29,9 @@ export class ClientRequestDto {
   @IsString()
   scheduledMeetDate: string;
 
-  @IsOptional()
-  @IsBoolean()
-  isRequestAccepted: boolean;
+  // @IsOptional()
+  // @IsBoolean()
+  // isRequestAccepted: boolean;
 
   @IsOptional()
   @IsBoolean()

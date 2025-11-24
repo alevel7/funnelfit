@@ -3,6 +3,7 @@ import { ClientRequest } from './client-request.entity';
 import { CFOProfile } from './cfo-profile.entity';
 import { TaskAcceptance, TaskPriority, TaskStatus } from 'src/common/enums/task.enum';
 import { SMEProfile } from './sme-profile.entity';
+import { CfoRequest } from './cfo-request.entity';
 
 @Entity('tasks')
 export class Task {
@@ -32,11 +33,20 @@ export class Task {
   })
   public sme: SMEProfile;
 
+  // link task to a project
+  @ManyToOne(() => CfoRequest, (cfoRequest) => cfoRequest.tasks, {
+    onDelete: 'CASCADE',
+  })
+  public project: CfoRequest;
+
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
   @Column('text')
   description: string;
+
+  @Column({ type: 'int', nullable: true })
+  estimatedHours: number;
 
   @Column()
   taskType: string;

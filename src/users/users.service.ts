@@ -135,12 +135,15 @@ export class UsersService {
     if (!clientRequest) {
       throw new NotFoundException('Engagement request not found');
     }
+    if (clientRequest.status === ClientRequestStatus.ACCEPTED) {
+      throw new BadRequestException('This request has already been accepted');
+    }
     clientRequest.status = body.status || clientRequest.status;
     clientRequest.rejectionReason = body.rejectionReason || clientRequest.rejectionReason;
     clientRequest.scheduledMeetDate = body.scheduledMeetDate || clientRequest.scheduledMeetDate;
     clientRequest.meetingDurationInMinutes = body.meetingDurationInMinutes || clientRequest.meetingDurationInMinutes;
     clientRequest.meetingMode = body.meetingMode || clientRequest.meetingMode;
-    clientRequest.isRequestAccepted = body.isRequestAccepted || clientRequest.isRequestAccepted;
+    // clientRequest.isRequestAccepted = body.isRequestAccepted || clientRequest.isRequestAccepted;
     clientRequest.isMeetingCompleted = body.isMeetingCompleted || clientRequest.isMeetingCompleted;
 
     await this.clientRequestRepo.save(clientRequest);

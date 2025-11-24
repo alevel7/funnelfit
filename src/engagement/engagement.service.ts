@@ -115,7 +115,7 @@ export class EngagementService {
         );
     }
 
-    async sendRequestToCfo(requestId: string, body: ClientRequestDto) {
+    async sendRequestToCfo(requestId: string, body: ClientRequestDto, user:LoggedInUser) {
         // get cached cfos for the request id
         const cachedCfos =
             (await this.cacheManager.get<CFOProfile[]>(
@@ -149,6 +149,7 @@ export class EngagementService {
         clientRequest = clientRequestRepo.create({
             request: cfoRequest,
             cfo: selectedCfo,
+            sme: cfoRequest.sme,
         });
         clientRequest = await clientRequestRepo.save(clientRequest);
 
@@ -283,11 +284,47 @@ export class EngagementService {
         );
     }
 
+    async getEngagementDetail(projectId: string, sme: LoggedInUser) {
+        const smeProfile = await this.smeRepo.findOne({
+            where: { user: { id: sme.id } },
+        });
+        if (!smeProfile) {
+            throw new NotFoundException('SME Profile not found');
+        }
+        // fetch the client request by id where the request.sme.id = smeProfile.id and isMeetingCompleted is true
+        const clientRequestRepo =
+            this.cfoRequestRepo.manager.getRepository('ClientRequest');
+        const engagement = await clientRequestRepo.findOne({
+            where: {
+                request: { id: projectId, sme: { id: smeProfile.id } },
+                // isMeetingCompleted: true,
+                status: ClientRequestStatus.ACCEPTED
+            },
+            relations: ['cfo'],
+            select:{
+                cfo:{
+                    id:true,
+                    firstName:true,
+                    lastName:true,
+                }
+            }
+        });
+        if (!engagement) {
+            throw new NotFoundException('Engagement not found');
+        }
+        return SendResponse.success(
+            engagement,
+            'Engagement detail retrieved successfully',
+        );
+    }
+
     private getCacheKey(dto: CfoRequestDto): string {
         const str = JSON.stringify(dto);
         const hash = crypto.createHash('sha256').update(str).digest('hex');
         return `search:${hash}`;
     }
+
+
 
     // Compute weighted score (same as before)
     private computeMatchScore(cfo: CFOProfile, dto: CfoRequestDto): number {

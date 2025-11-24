@@ -14,6 +14,7 @@ import {
   MeetingMode,
 } from 'src/common/enums/cfo-request.enum';
 import { Task } from './task.entity';
+import { SMEProfile } from './sme-profile.entity';
 
 @Entity('clientRequests')
 export class ClientRequest {
@@ -29,6 +30,11 @@ export class ClientRequest {
     onDelete: 'CASCADE',
   })
   public cfo: CFOProfile;
+
+  @ManyToOne(() => SMEProfile, (cfo) => cfo.clientRequests, {
+    onDelete: 'CASCADE',
+  })
+  public sme: SMEProfile;
 
   @OneToMany(() => Task, (tasks) => tasks.request)
   public tasks: Task[];
@@ -50,8 +56,8 @@ export class ClientRequest {
   meetingMode: MeetingMode;
 
   // add a boolean field
-  @Column({ type: 'boolean', default: false })
-  isRequestAccepted: boolean;
+  // @Column({ type: 'boolean', default: false })
+  // isRequestAccepted: boolean;
 
   // add a string field for optional notes
   @Column({ type: 'text', nullable: true })

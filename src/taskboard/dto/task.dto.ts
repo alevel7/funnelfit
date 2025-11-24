@@ -1,10 +1,13 @@
-import { IsDateString, IsDecimal, IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsDateString, IsDecimal, IsEnum, IsInt, IsOptional, IsString, IsUUID } from "class-validator";
 import { TaskPriority, TaskStatus } from "src/common/enums/task.enum";
 
 export class TaskCreateDto {
 
     @IsUUID()
-    requestId: string;
+    clientRequestId: string;
+
+    @IsUUID()
+    projectId: string;
 
     @IsString()
     title: string;
@@ -20,6 +23,9 @@ export class TaskCreateDto {
 
     @IsDateString()
     dueDate: Date;
+
+    @IsInt()
+    estimatedHours: number;
 
     @IsString()
     businessObjective: string;

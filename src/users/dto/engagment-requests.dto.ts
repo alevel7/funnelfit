@@ -28,9 +28,9 @@ export class ClientRequestUpdateDto {
   @IsString()
   additionalNotes: string;
 
-  @IsOptional()
-  @IsBoolean()
-  isRequestAccepted: boolean;
+  // @IsOptional()
+  // @IsBoolean()
+  // isRequestAccepted: boolean;
 
   @IsOptional()
   @IsEnum(MeetingMode)

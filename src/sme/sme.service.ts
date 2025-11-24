@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
-import {  UpdateCompanyDto } from './dto/sme.dto';
+import { UpdateCompanyDto } from './dto/sme.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SMEProfile } from 'src/entities/sme-profile.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +12,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ProducerService } from 'src/messaging/queue/producer.service';
 import { ClientRequest } from 'src/entities/client-request.entity';
+import { ClientRequestStatus } from 'src/common/enums/cfo-request.enum';
 
 
 @Injectable()
@@ -29,7 +30,7 @@ export class SmeService {
     private readonly cfoRequestRepo: Repository<CfoRequest>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly producerService: ProducerService,
-  ) {}
+  ) { }
 
   async findSMEById(id: string) {
     const smeProfile = await this.getSMeById(id);
@@ -106,4 +107,33 @@ export class SmeService {
     return false;
   }
 
+  async getSmeCfos(smeId: string) {
+    const smeProfile = await this.smeRepo.findOne({
+      where: { user: { id: smeId } },
+    });
+    if (!smeProfile) {
+      throw new NotFoundException('SME Profile not found');
+    }
+    // distinctly fetch all cfos from client requests where the request.sme.id = smeProfile.id
+    const clientRequests = await this.clientRequestRepo.find({
+      where: { sme: { id: smeProfile.id }, status: ClientRequestStatus.ACCEPTED },
+      relations: ['cfo'],
+      select: { 
+        cfo: { 
+          id: true, 
+          firstName: true, 
+          lastName: true, 
+        } },
+    });
+    const distinctCfosMap = new Map<string, CFOProfile>();
+    clientRequests.forEach((request) => {
+      distinctCfosMap.set(request.cfo.id, request.cfo);
+    });
+    const distinctCfos = Array.from(distinctCfosMap.values());
+
+    return SendResponse.success(
+      distinctCfos,
+      'CFOs associated with SME retrieved successfully',
+    );
+  }
 }
