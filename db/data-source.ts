@@ -23,9 +23,10 @@ export const dataSourceOptions: DataSourceOptions = {
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
     migrations: ['dist/db/migrations/*.js'],
     subscribers: [],
-    ssl: process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: true }
-        : false,
+    // ssl: process.env.DB_SSL === 'true'
+    //     ? { rejectUnauthorized: false }
+    //     : true,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 }
 const dataSource = new DataSource(dataSourceOptions);
 export default dataSource;
