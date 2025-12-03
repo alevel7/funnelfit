@@ -10,9 +10,6 @@ import {
 } from 'typeorm';
 import { CFOProfile } from './cfo-profile.entity';
 import { SMEProfile } from './sme-profile.entity';
-import { LoginType } from 'src/auth/dto/login.dto';
-import { CfoRequest } from './cfo-request.entity';
-import { ClientRequest } from './client-request.entity';
 
 @Entity('users')
 export class User {

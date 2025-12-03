@@ -10,19 +10,19 @@ export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // Self-referencing relation for parent task (optional)
+  // Parent task (optional)
   @ManyToOne(() => Task, (task) => task.subtasks, { nullable: true, onDelete: 'CASCADE' })
   parentTask?: Task;
 
-  // Self-referencing relation for subtasks
-  @OneToMany(() => Task, (task) => task.parentTask)
+  // Subtasks
+  @OneToMany(() => Task, (task) => task.parentTask, { cascade: true })
   subtasks?: Task[];
 
   @ManyToOne(() => ClientRequest, (request) => request.tasks, {
     onDelete: 'CASCADE',
   })
   public request: ClientRequest;
-  
+
   @Column({ type: 'varchar', length: 255 })
   title: string;
 

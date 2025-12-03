@@ -14,7 +14,6 @@ import {
   MeetingMode,
 } from 'src/common/enums/cfo-request.enum';
 import { Task } from './task.entity';
-import { SMEProfile } from './sme-profile.entity';
 
 @Entity('clientRequests')
 export class ClientRequest {
