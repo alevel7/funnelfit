@@ -274,4 +274,39 @@ export class UsersService {
     });
     return user;
   }
+
+  async getProfileStatistics(user: LoggedInUser) {
+    const cfoProfile = await this.cfoRepo.findOne({
+      where: { user: { id: user.id } },
+    });
+    if (!cfoProfile) throw new UnauthorizedException('CFO profile not found');
+
+    const rows = await this.clientRequestRepo
+      .createQueryBuilder('clientRequest')
+      .select('clientRequest.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .where('clientRequest.cfoId = :cfoId', { cfoId: cfoProfile.id })
+      .andWhere(
+      'clientRequest.status IN (:...statuses)',
+      {
+        statuses: [
+        ClientRequestStatus.ACCEPTED,
+        ClientRequestStatus.COMPLETED,
+        ClientRequestStatus.NEW,
+        ],
+      },
+      )
+      .groupBy('clientRequest.status')
+      .getRawMany();
+
+    // const totalEngagements = rows.reduce(
+    //   (sum, r) => sum + parseInt(r.count as any, 10),
+    //   0,
+    // );
+
+    return SendResponse.success(
+      rows,
+      'CFO profile statistics fetched successfully',
+    );
+  }
 }

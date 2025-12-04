@@ -18,13 +18,11 @@ import { AdminModule } from './admin/admin.module';
 import { NotificationModule } from './notification/notification.module';
 import { dataSourceOptions } from 'db/data-source';
 import { UsersModule } from './users/users.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SmeModule } from './sme/sme.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { SeedModule } from './seed/seed.module';
-import { name } from 'ejs';
-import { ServiceController } from './service/service.controller';
+import { FileUploadModule } from './file-upload/file-upload.module';
 // import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -70,11 +68,11 @@ import { ServiceController } from './service/service.controller';
     AdminModule,
     NotificationModule,
     UsersModule,
-    CloudinaryModule,
     SmeModule,
     SeedModule,
+    FileUploadModule,
   ],
-  controllers: [AppController, ServiceController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

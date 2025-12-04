@@ -104,9 +104,13 @@ export class UpdateCFODto {
   @IsEnum(EngagementModel)
   preferredEngagementModel?: EngagementModel; //
 
-  // @IsOptional()
-  // @IsString()
-  // workExpectationsAddedNote?: string;//
+  @IsOptional()
+  @IsString()
+  aboutMe?: string;
+
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
 
 // export class CfoUpdateDto extends PartialType(UpdateUserDto) {}

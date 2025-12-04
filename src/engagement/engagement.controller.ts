@@ -3,6 +3,7 @@ import { EngagementService } from './engagement.service';
 import { SMEGuard } from 'src/auth/guards/sme.guard';
 import { LoggedInUser } from 'src/common/interface/jwt.interface';
 import { CfoRequestDto, ClientRequestDto } from './dto/cfoRequest.dto';
+import { CfoGuard } from 'src/auth/guards/cfo.guard';
 
 @Controller('engagements')
 export class EngagementController {

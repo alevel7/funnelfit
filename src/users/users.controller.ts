@@ -30,7 +30,7 @@ import {
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -48,6 +48,13 @@ export class UsersController {
   ) {
     const user: LoggedInUser = req.user;
     return this.usersService.getEngagementRequests(page, limit, status, user);
+  }
+
+  @UseGuards(CfoGuard)
+  @Get('cfo-profile-stats')
+  getProfileStatistics(@Request() req: any) {
+    const user: LoggedInUser = req.user;
+    return this.usersService.getProfileStatistics(user);
   }
 
   @UseGuards(CfoGuard)

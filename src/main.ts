@@ -49,17 +49,6 @@ async function bootstrap() {
 
     await app.listen(process.env.PORT ?? 3000);
 
-    // Cleanup resources when the application is closed
-    // process.on('SIGINT', async () => {
-    //   // Close any long-lived resources here
-    //   // For example, close database connections or file handles
-
-    //   // Unsubscribe from any event listeners or subscriptions
-    //   // For example, unsubscribe from socket.io events or RxJS observables
-
-    //   // Gracefully shutdown the application
-    //   await app.close();
-    // });
   }
 }
 bootstrap();

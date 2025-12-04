@@ -6,9 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build --type-check",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "nest start --type-check",
     "start:dev": "NODE_ENV=development nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "npm run build && NODE_ENV=production node dist/src/main.js",
@@ -29,6 +29,8 @@
     "seed:prod": "NODE_ENV=production node dist/src/seed/seeder.command.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.943.0",
+    "@aws-sdk/s3-request-presigner": "^3.943.0",
     "@faker-js/faker": "^6.3.1",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/bull": "^11.0.3",

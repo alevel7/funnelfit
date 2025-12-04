@@ -5,6 +5,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
   Inject,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -112,7 +113,7 @@ export class AuthService {
     }
     if (!user) throw new UnauthorizedException('Invalid credentials');
     if (!user.isVerified)
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'User not verified. Please validate your OTP.',
       );
     const valid = await bcrypt.compare(dto.password, user.password);
