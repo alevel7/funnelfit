@@ -8,5 +8,22 @@
     ],
     "deleteOutDir": true,
     "builder":"swc"
+  },
+  "swcOptions": {
+    "jsc": {
+      "target": "es2021",
+      "parser": {
+        "syntax": "typescript",
+        "tsx": false,
+        "decorators": true
+      },
+      "transform": {
+        "decoratorMetadata": true,
+        "legacyDecorator": true
+      }
+    },
+    "module": {
+      "type": "commonjs"
+    }
   }
 }

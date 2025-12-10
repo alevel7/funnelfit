@@ -11,6 +11,7 @@ import {
   companySizeExperience,
   EngagementLength,
   EngagementModel,
+  UserRole,
 } from 'src/common/enums/user.enum';
 import { SMEProfile } from 'src/entities/sme-profile.entity';
 import { CfoRequest } from 'src/entities/cfo-request.entity';
@@ -121,7 +122,7 @@ export class SeedService {
           email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`,
           password: await bcrypt.hash('password123', 10),
           phoneNumber: faker.phone.phoneNumber('+234##########'),
-          role: 'CFO',
+          role: UserRole.CFO,
           isVerified: faker.datatype.boolean(),
           isOnboarded: faker.datatype.boolean(),
           status: 'ACTIVE',

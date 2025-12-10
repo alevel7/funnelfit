@@ -39,6 +39,7 @@ export class ClientRequestDto {
 }
 
 class FinancialChallenge {
+
   @IsOptional()
   @IsString()
   name: string;

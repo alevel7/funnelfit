@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import { CFOProfile } from './cfo-profile.entity';
 import { SMEProfile } from './sme-profile.entity';
+// import { ApiHideProperty } from '@nestjs/swagger';
+import { UserRole } from 'src/common/enums/user.enum';
 
 @Entity('users')
 export class User {
@@ -27,11 +29,8 @@ export class User {
   @Column({ nullable: true })
   phoneNumber: string;
 
-  @Column({
-    type: 'enum',
-    enum: ['SME', 'CFO', 'ADMIN', 'REVIEWER', 'ENGAGEMENT_MANAGER'],
-  })
-  role: string;
+  @Column({ type: 'enum', enum: UserRole })
+  role: UserRole;
 
   @Column({ default: false })
   isVerified: boolean;
@@ -51,9 +50,11 @@ export class User {
 
   // these two fields were added for reverse fetching of data and are not part of column in db
   @OneToOne(() => CFOProfile, (cfoProfile) => cfoProfile.user)
+  // @ApiHideProperty()
   cfo: Relation<CFOProfile>;
 
   @OneToOne(() => SMEProfile, (smeProfile) => smeProfile.user)
+  // @ApiHideProperty()
   sme: Relation<SMEProfile>;
 
   @CreateDateColumn()

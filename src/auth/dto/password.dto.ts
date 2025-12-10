@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, MinLength } from 'class-validator';
 import {
   ValidateIf,
@@ -20,16 +19,13 @@ class MatchPasswordConstraint implements ValidatorConstraintInterface {
 }
 
 export class PasswordResetDto {
-  @ApiProperty({ example: 'John@gmail.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'password123' })
   @IsString()
   @MinLength(6)
   password: string;
 
-  @ApiProperty({ example: 'password123' })
   @IsString()
   @MinLength(6)
   @Validate(MatchPasswordConstraint)

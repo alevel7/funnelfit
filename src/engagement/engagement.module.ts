@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { EngagementController } from './engagement.controller';
 import { EngagementService } from './engagement.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientRequest } from 'http';
+import { ClientRequest } from 'src/entities/client-request.entity';
 import { CFOProfile } from 'src/entities/cfo-profile.entity';
 import { CfoRequest } from 'src/entities/cfo-request.entity';
 import { SMEProfile } from 'src/entities/sme-profile.entity';

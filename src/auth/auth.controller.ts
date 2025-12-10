@@ -12,7 +12,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from 'src/entities/user.entity';
 import { NewOtpDto, ValidateOtpDto } from './dto/validateOtp.dto';
 import { PasswordResetDto } from './dto/password.dto';
@@ -36,12 +35,6 @@ export class AuthController {
   }
 
   @Post('register')
-  @ApiOperation({ summary: 'Sign up a new user' })
-  @ApiResponse({
-    status: 201,
-    description: 'User created successfully.',
-    type: User,
-  })
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }

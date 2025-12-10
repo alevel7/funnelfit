@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { FileUploadService } from './file-upload.service';
 import { CreateFileUploadDto } from './dto/create-file-upload.dto';
-import { UpdateFileUploadDto } from './dto/update-file-upload.dto';
+// import { UpdateFileUploadDto } from './dto/update-file-upload.dto';
 import { getSignedUrl } from '../../node_modules/@aws-sdk/s3-request-presigner/dist-es/getSignedUrl';
 
 @Controller('file-upload')

@@ -23,6 +23,7 @@ export class CFOProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  
   @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: Relation<User>;
@@ -87,6 +88,7 @@ export class CFOProfile {
   preferredEngagementModel: EngagementModel;
 
   // tracks all client requests made to this CFO
+  
   @OneToMany(() => ClientRequest, (clientRequests) => clientRequests.cfo)
   public clientRequests: ClientRequest[];
 
