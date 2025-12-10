@@ -16,13 +16,14 @@ import { BillingModule } from './billing/billing.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AdminModule } from './admin/admin.module';
 import { NotificationModule } from './notification/notification.module';
-import { dataSourceOptions } from 'db/data-source';
+import { dataSourceOptions } from './db/data-source';
 import { UsersModule } from './users/users.module';
 import { SmeModule } from './sme/sme.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { SeedModule } from './seed/seed.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { BullModule } from '@nestjs/bull';
 // import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
@@ -32,10 +33,6 @@ import { FileUploadModule } from './file-upload/file-upload.module';
       envFilePath: [`${process.cwd()}/.env.${process.env.NODE_ENV}`],
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    // CacheModule.register({
-    //   isGlobal: true,
-    //   ttl: 15 * 60 * 1000
-    // }), // 15 minutes in millisecond
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
@@ -75,4 +72,4 @@ import { FileUploadModule } from './file-upload/file-upload.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

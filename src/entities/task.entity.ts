@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Relation } from 'typeorm';
 import { ClientRequest } from './client-request.entity';
 import { CFOProfile } from './cfo-profile.entity';
 import { TaskAcceptance, TaskPriority, TaskStatus } from 'src/common/enums/task.enum';
@@ -12,16 +12,16 @@ export class Task {
 
   // Parent task (optional)
   @ManyToOne(() => Task, (task) => task.subtasks, { nullable: true, onDelete: 'CASCADE' })
-  parentTask?: Task;
+  parentTask?: Relation<Task>;
 
   // Subtasks
   @OneToMany(() => Task, (task) => task.parentTask, { cascade: true })
-  subtasks?: Task[];
+  subtasks?: Relation<Task[]>;
 
   @ManyToOne(() => ClientRequest, (request) => request.tasks, {
     onDelete: 'CASCADE',
   })
-  public request: ClientRequest;
+  public request: Relation<ClientRequest>;
 
   @Column({ type: 'varchar', length: 255 })
   title: string;

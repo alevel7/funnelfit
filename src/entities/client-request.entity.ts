@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  Relation,
 } from 'typeorm';
 import { CfoRequest } from './cfo-request.entity';
 import { CFOProfile } from './cfo-profile.entity';
@@ -23,16 +24,16 @@ export class ClientRequest {
   @ManyToOne(() => CfoRequest, (request) => request.cfos, {
     onDelete: 'CASCADE',
   })
-  public request: CfoRequest;
+  public request: Relation<CfoRequest>;
 
   @ManyToOne(() => CFOProfile, (cfo) => cfo.clientRequests, {
     onDelete: 'CASCADE',
   })
-  public cfo: CFOProfile;
+  public cfo: Relation<CFOProfile>;
 
 
   @OneToMany(() => Task, (tasks) => tasks.request)
-  public tasks: Task[];
+  public tasks: Relation<Task[]>;
   
 
   @Column()

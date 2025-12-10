@@ -58,6 +58,13 @@ export class UsersController {
   }
 
   @UseGuards(CfoGuard)
+  @Get('projects-by-client')
+  getSmeProjectsByClient(@Request() req: any) {
+    const user: LoggedInUser = req.user;
+    return this.usersService.getSmeProjectsByClient(user);
+  }
+
+  @UseGuards(CfoGuard)
   @Post('engagement-requests/:id/schedule-meeting')
   scheduleMeeting(
     @Param('id') id: string,

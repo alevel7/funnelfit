@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Relation } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -7,7 +7,7 @@ export class Application {
   id: number;
 
   @ManyToOne(() => User)
-  user: User;
+  user: Relation<User>;
 
   @Column()
   status: string; // e.g., pending, approved, rejected

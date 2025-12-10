@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 import {
   CfoUrgencyLevel,
@@ -41,11 +42,11 @@ export class CfoRequest {
   @ManyToOne(() => SMEProfile, (user) => user.cfoRequests, {
     onDelete: 'CASCADE',
   })
-  sme: SMEProfile;
+  sme: Relation<SMEProfile>;
 
   // tracks which CFOs have been requested for this particular request
   @OneToMany(() => ClientRequest, (clientRequests) => clientRequests.request)
-  public cfos: ClientRequest[];
+  public cfos: Relation<ClientRequest[]>;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -309,4 +309,8 @@ export class UsersService {
       'CFO profile statistics fetched successfully',
     );
   }
+
+  async getSmeProjectsByClient(user:LoggedInUser) {
+    
+  }
 }

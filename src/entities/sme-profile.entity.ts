@@ -7,6 +7,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 import { User } from './user.entity';
 import { CfoRequest } from './cfo-request.entity';
@@ -22,7 +23,7 @@ export class SMEProfile {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: User;
+  user: Relation<User>;
 
   @Column({ type: 'jsonb', nullable: true, default: {} })
   companyinfo: {
@@ -71,7 +72,7 @@ export class SMEProfile {
 
   // tracks sme initial cfo requests criteria
   @OneToMany(() => CfoRequest, (requests) => requests.sme)
-  cfoRequests: CfoRequest[];
+  cfoRequests: Relation<CfoRequest[]>;
 
   @CreateDateColumn()
   createdAt: Date;

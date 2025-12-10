@@ -7,6 +7,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 import { User } from './user.entity';
 import {
@@ -24,7 +25,7 @@ export class CFOProfile {
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user: User;
+  user: Relation<User>;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   firstName: string;

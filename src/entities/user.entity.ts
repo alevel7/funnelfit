@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   OneToMany,
+  Relation,
 } from 'typeorm';
 import { CFOProfile } from './cfo-profile.entity';
 import { SMEProfile } from './sme-profile.entity';
@@ -50,10 +51,10 @@ export class User {
 
   // these two fields were added for reverse fetching of data and are not part of column in db
   @OneToOne(() => CFOProfile, (cfoProfile) => cfoProfile.user)
-  cfo: CFOProfile;
+  cfo: Relation<CFOProfile>;
 
   @OneToOne(() => SMEProfile, (smeProfile) => smeProfile.user)
-  sme: SMEProfile;
+  sme: Relation<SMEProfile>;
 
   @CreateDateColumn()
   createdAt: Date;
